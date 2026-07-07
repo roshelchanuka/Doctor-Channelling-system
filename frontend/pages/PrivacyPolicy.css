@@ -1,0 +1,72 @@
+.privacy-policy-container {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 2rem;
+    font-family: 'Inter', sans-serif;
+    color: #334155;
+}
+
+.privacy-header {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.back-btn {
+    background: transparent;
+    border: none;
+    color: #0ea5e9;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-right: 1.5rem;
+    transition: color 0.2s ease;
+}
+
+.back-btn:hover {
+    color: #0284c7;
+}
+
+.privacy-header h1 {
+    font-size: 1.8rem;
+    color: #0f172a;
+    margin: 0;
+}
+
+.privacy-content section {
+    margin-bottom: 2rem;
+}
+
+.privacy-content h2 {
+    font-size: 1.25rem;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.privacy-content p {
+    line-height: 1.6;
+    color: #475569;
+    font-size: 0.95rem;
+}
+
+.privacy-footer-note {
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Add styles for the footer link in Dashboard */
+.footer-link {
+    color: #0ea5e9;
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+.footer-link:hover {
+    text-decoration: underline;
+}

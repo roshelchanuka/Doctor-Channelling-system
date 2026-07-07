@@ -6,6 +6,7 @@ import CompleteProfile from '../pages/CompleteProfile';
 import DoctorDashboard from '../pages/DoctorDashboard';
 import AdminDashboard from '../pages/AdminDashboard';
 import LandingPage from '../pages/LandingPage';
+import PrivacyPolicy from '../pages/PrivacyPolicy';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -15,6 +16,7 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       
       {/* Protected Routes */}
       <Route 
