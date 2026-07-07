@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import NotificationBell from '../src/components/NotificationBell';
 import './Dashboard.css';
 
@@ -675,6 +675,11 @@ const Dashboard = () => {
                     )}
                     {renderContent()}
                 </main>
+                
+                {/* Footer area */}
+                <footer className="dashboard-footer">
+                    <p>&copy; {new Date().getFullYear()} Doctor Channelling System. All rights reserved. | <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link></p>
+                </footer>
             </div>
         </div>
     );
