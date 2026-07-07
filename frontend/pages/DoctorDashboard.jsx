@@ -34,7 +34,7 @@ const DoctorDashboard = () => {
     const role = localStorage.getItem('role');
 
     useEffect(() => {
-        if (!token || !userId || role !== 'DOCTOR') {
+        if (!token || !userId || role?.toUpperCase() !== 'DOCTOR') {
             navigate('/login');
             return;
         }
