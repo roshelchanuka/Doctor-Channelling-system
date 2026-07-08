@@ -163,22 +163,22 @@ const Dashboard = () => {
 
                 {/* Stats row */}
                 <div className="stats-row">
-                    <div className="stat-card stat-blue">
-                        <div className="stat-icon">📅</div>
+                    <div className="stat-item">
+                        <div className="stat-icon-text">📅</div>
                         <div className="stat-info">
                             <span className="stat-value">{upcoming.length}</span>
                             <span className="stat-label">Upcoming</span>
                         </div>
                     </div>
-                    <div className="stat-card stat-green">
-                        <div className="stat-icon">✅</div>
+                    <div className="stat-item">
+                        <div className="stat-icon-text">✅</div>
                         <div className="stat-info">
                             <span className="stat-value">{past.length}</span>
                             <span className="stat-label">Completed</span>
                         </div>
                     </div>
-                    <div className="stat-card stat-purple">
-                        <div className="stat-icon">👨‍⚕️</div>
+                    <div className="stat-item">
+                        <div className="stat-icon-text">👨‍⚕️</div>
                         <div className="stat-info">
                             <span className="stat-value">{doctors.length || '—'}</span>
                             <span className="stat-label">Doctors</span>
@@ -220,16 +220,17 @@ const Dashboard = () => {
                 {/* Quick actions */}
                 <div className="quick-actions">
                     <h3>Quick Actions</h3>
-                    <div className="quick-grid">
+                    <div className="quick-links">
                         {navItems.filter(n => n.id !== 'home').map(item => (
-                            <button
+                            <a
                                 key={item.id}
-                                className="quick-card"
-                                onClick={() => setActiveTab(item.id)}
+                                href="#"
+                                className="quick-link"
+                                onClick={(e) => { e.preventDefault(); setActiveTab(item.id); }}
                             >
                                 <span className="quick-icon">{item.icon}</span>
                                 <span className="quick-label">{item.label}</span>
-                            </button>
+                            </a>
                         ))}
                     </div>
                 </div>
