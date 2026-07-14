@@ -48,6 +48,22 @@ public class DoctorController {
         return doctorService.getAllDoctors();
     }
 
+    @GetMapping("/search")
+    public List<Doctor> searchDoctors(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String specialization,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String hospital) {
+        
+        // If all parameters are empty/null, return all doctors (or we could return empty list depending on logic)
+        return doctorService.searchDoctors(
+                (name != null && !name.isBlank()) ? name : null,
+                (specialization != null && !specialization.isBlank()) ? specialization : null,
+                (city != null && !city.isBlank()) ? city : null,
+                (hospital != null && !hospital.isBlank()) ? hospital : null
+        );
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<java.util.Map<String, Object>> getDoctorById(@PathVariable Integer id) {
         Optional<Doctor> doctorOpt = doctorService.getDoctorById(id);

@@ -8,12 +8,27 @@ const Dashboard = () => {
     const [activeTab, setActiveTab] = useState('home');
     const [dashboardData, setDashboardData] = useState(null);
     const [doctors, setDoctors] = useState([]);
+    const [medicalRecords, setMedicalRecords] = useState([]);
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [uploading, setUploading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(true);
+
+    // Search States
+    const [searchName, setSearchName] = useState('');
+    const [searchSpec, setSearchSpec] = useState('');
+    const [searchCity, setSearchCity] = useState('');
+    const [searchHospital, setSearchHospital] = useState('');
+
+    // Review States
+    const [reviewModalOpen, setReviewModalOpen] = useState(false);
+    const [reviewTargetDoctor, setReviewTargetDoctor] = useState(null);
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState('');
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
     const navigate = useNavigate();
 
     const token = localStorage.getItem('token');
@@ -29,6 +44,8 @@ const Dashboard = () => {
             fetchDashboardData(userId, token);
         } else if (activeTab === 'book') {
             fetchDoctors(token);
+        } else if (activeTab === 'records') {
+            fetchMedicalRecords(userId, token);
         }
     }, [activeTab, navigate]);
 
@@ -54,7 +71,15 @@ const Dashboard = () => {
 
     const fetchDoctors = async (tok) => {
         try {
-            const response = await axios.get('http://localhost:8085/api/doctors', {
+            const params = new URLSearchParams();
+            if (searchName) params.append('name', searchName);
+            if (searchSpec) params.append('specialization', searchSpec);
+            if (searchCity) params.append('city', searchCity);
+            if (searchHospital) params.append('hospital', searchHospital);
+
+            const endpoint = params.toString() ? `/api/doctors/search?${params.toString()}` : `/api/doctors`;
+
+            const response = await axios.get(`http://localhost:8085${endpoint}`, {
                 headers: { Authorization: `Bearer ${tok}` }
             });
             setDoctors(response.data);
@@ -63,6 +88,38 @@ const Dashboard = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const fetchMedicalRecords = async (uid, tok) => {
+        setIsLoading(true);
+        try {
+            const response = await axios.get(`http://localhost:8085/api/medical-records/patient/${uid}`, {
+                headers: { Authorization: `Bearer ${tok}` }
+            });
+            setMedicalRecords(response.data);
+            setError('');
+        } catch (err) {
+            setError("Failed to load medical records.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        fetchDoctors(token);
+    };
+
+    const clearSearch = () => {
+        setSearchName('');
+        setSearchSpec('');
+        setSearchCity('');
+        setSearchHospital('');
+        
+        // Fetch all doctors again
+        axios.get('http://localhost:8085/api/doctors', {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(res => setDoctors(res.data)).catch(err => setError("Failed to load doctors."));
     };
 
     const handleBookAppointment = async (slotId) => {
@@ -115,6 +172,34 @@ const Dashboard = () => {
         }
     };
 
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        const uid = localStorage.getItem('userId');
+        if (!uid || !reviewTargetDoctor) return;
+        
+        setIsSubmittingReview(true);
+        setError('');
+        try {
+            await axios.post('http://localhost:8085/api/reviews', {
+                patientId: parseInt(uid, 10),
+                doctorId: reviewTargetDoctor.doctorId,
+                rating: parseInt(rating, 10),
+                comment: comment
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setMessage('Review submitted successfully!');
+            setReviewModalOpen(false);
+            setReviewTargetDoctor(null);
+            setRating(5);
+            setComment('');
+        } catch (err) {
+            setError('Failed to submit review.');
+        } finally {
+            setIsSubmittingReview(false);
+        }
+    };
+
     const getGreeting = () => {
         const hour = new Date().getHours();
         if (hour < 12) return 'Good Morning';
@@ -128,6 +213,7 @@ const Dashboard = () => {
         { id: 'upcoming', label: 'Upcoming Appointments', icon: '📅' },
         { id: 'past', label: 'Past Appointments', icon: '📋' },
         { id: 'book', label: 'Book Appointment', icon: '➕' },
+        { id: 'records', label: 'Medical Records', icon: '📝' },
     ];
 
     // ─── HOME PAGE ───────────────────────────────────────────────────────────
@@ -442,6 +528,16 @@ const Dashboard = () => {
                                             <p>{app.slot?.startTime}</p>
                                         </div>
                                     </div>
+                                    <div className="appt-detail">
+                                        <button className="leave-review-btn" onClick={() => {
+                                            setReviewTargetDoctor(app.slot.doctor);
+                                            setRating(5);
+                                            setComment('');
+                                            setReviewModalOpen(true);
+                                        }}>
+                                            ⭐ Rate Doctor
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -464,6 +560,20 @@ const Dashboard = () => {
 
                 {!selectedDoctor ? (
                     <div>
+                        <div className="advanced-search-panel">
+                            <h3>🔍 Advanced Search</h3>
+                            <form onSubmit={handleSearch} className="search-form-grid">
+                                <input type="text" placeholder="Doctor Name (e.g. Silva)" value={searchName} onChange={e => setSearchName(e.target.value)} />
+                                <input type="text" placeholder="Specialization (e.g. Cardiologist)" value={searchSpec} onChange={e => setSearchSpec(e.target.value)} />
+                                <input type="text" placeholder="City (e.g. Colombo)" value={searchCity} onChange={e => setSearchCity(e.target.value)} />
+                                <input type="text" placeholder="Hospital (e.g. Asiri)" value={searchHospital} onChange={e => setSearchHospital(e.target.value)} />
+                                <div className="search-actions">
+                                    <button type="submit" className="search-btn">Search</button>
+                                    <button type="button" className="clear-btn" onClick={clearSearch}>Clear</button>
+                                </div>
+                            </form>
+                        </div>
+
                         <h3 className="section-sub-title">Available Doctors</h3>
                         {doctors.length === 0 ? (
                             <div className="empty-state">
@@ -486,6 +596,9 @@ const Dashboard = () => {
                                             <div className="doctor-info">
                                                 <h4>Dr. {doc.doctorName}</h4>
                                                 <span className="specialty-badge">{doc.specialization}</span>
+                                                <div className="doc-rating-summary">
+                                                    ⭐ {doc.averageRating || '0.0'} ({doc.totalReviews || 0} reviews)
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="doctor-card-body">
@@ -580,6 +693,89 @@ const Dashboard = () => {
         );
     };
 
+    const renderRecords = () => {
+        if (isLoading) return <LoadingSpinner />;
+
+        return (
+            <div className="page-section animate-fade-in">
+                <div className="page-header">
+                    <h2>Medical Records</h2>
+                    <p>Your history of diagnosis and prescriptions</p>
+                </div>
+                {medicalRecords.length === 0 ? (
+                    <div className="empty-state">
+                        <span className="empty-icon">📂</span>
+                        <h3>No Medical Records Found</h3>
+                        <p>You don't have any medical records yet.</p>
+                    </div>
+                ) : (
+                    <div className="records-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        {medicalRecords.map((record, index) => (
+                            <div 
+                                key={record.recordId} 
+                                className="record-card animate-fade-in-up" 
+                                style={{ 
+                                    animationDelay: `${index * 0.08}s`,
+                                    background: 'white',
+                                    borderRadius: '12px',
+                                    padding: '1.5rem',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                                    border: '1px solid #e2e8f0'
+                                }}
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '1rem' }}>
+                                    <div>
+                                        <h3 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>{record.diagnosis}</h3>
+                                        <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                            Dr. {record.doctor?.doctorName}
+                                        </span>
+                                    </div>
+                                    <div style={{ textAlign: 'right', color: '#64748b', fontSize: '0.9rem' }}>
+                                        {new Date(record.recordDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </div>
+                                </div>
+                                
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                                    <div>
+                                        <h4 style={{ color: '#475569', margin: '0 0 0.5rem 0', fontSize: '0.9rem', textTransform: 'uppercase' }}>Symptoms</h4>
+                                        <p style={{ margin: 0, color: '#1e293b' }}>{record.symptoms}</p>
+                                    </div>
+                                    <div>
+                                        <h4 style={{ color: '#475569', margin: '0 0 0.5rem 0', fontSize: '0.9rem', textTransform: 'uppercase' }}>Notes</h4>
+                                        <p style={{ margin: 0, color: '#1e293b' }}>{record.notes || 'None'}</p>
+                                    </div>
+                                </div>
+
+                                {/* Prescriptions Sub-section */}
+                                <div>
+                                    <h4 style={{ color: '#2b6cb0', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <span>💊</span> Prescriptions
+                                    </h4>
+                                    {(!record.prescriptions || record.prescriptions.length === 0) ? (
+                                        <p style={{ color: '#64748b', fontSize: '0.9rem', fontStyle: 'italic' }}>No prescriptions provided.</p>
+                                    ) : (
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+                                            {record.prescriptions.map(p => (
+                                                <div key={p.prescriptionId} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem' }}>
+                                                    <h5 style={{ margin: '0 0 0.5rem 0', color: '#0f172a', fontSize: '1rem' }}>{p.medicineName}</h5>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', color: '#475569' }}>
+                                                        <span><strong>Dosage:</strong> {p.dosage}</span>
+                                                        <span><strong>Duration:</strong> {p.duration || 'N/A'}</span>
+                                                        <span><strong>Instructions:</strong> {p.instructions || 'N/A'}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     const renderContent = () => {
         switch (activeTab) {
             case 'home': return renderHome();
@@ -587,6 +783,7 @@ const Dashboard = () => {
             case 'upcoming': return renderUpcoming();
             case 'past': return renderPast();
             case 'book': return renderBook();
+            case 'records': return renderRecords();
             default: return renderHome();
         }
     };
@@ -675,6 +872,48 @@ const Dashboard = () => {
                         </div>
                     )}
                     {renderContent()}
+
+                    {/* Review Modal */}
+                    {reviewModalOpen && reviewTargetDoctor && (
+                        <div className="modal-overlay" onClick={() => setReviewModalOpen(false)}>
+                            <div className="modal-content review-modal" onClick={e => e.stopPropagation()}>
+                                <button className="modal-close" onClick={() => setReviewModalOpen(false)}>×</button>
+                                <h3>Rate Dr. {reviewTargetDoctor.doctorName}</h3>
+                                <p>How was your experience?</p>
+                                
+                                <form onSubmit={handleReviewSubmit} className="review-form">
+                                    <div className="rating-select">
+                                        {[5, 4, 3, 2, 1].map(num => (
+                                            <button 
+                                                type="button" 
+                                                key={num} 
+                                                className={`star-btn ${rating >= num ? 'active' : ''}`}
+                                                onClick={() => setRating(num)}
+                                            >
+                                                ★
+                                            </button>
+                                        )).reverse()}
+                                    </div>
+                                    <div className="rating-value-text">{rating} out of 5 stars</div>
+
+                                    <div className="form-group">
+                                        <label>Comment (Optional)</label>
+                                        <textarea 
+                                            rows="3" 
+                                            placeholder="Write your feedback here..." 
+                                            value={comment}
+                                            onChange={e => setComment(e.target.value)}
+                                        ></textarea>
+                                    </div>
+
+                                    <button type="submit" className="submit-review-btn" disabled={isSubmittingReview}>
+                                        {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
                 </main>
                 
                 {/* Footer area */}

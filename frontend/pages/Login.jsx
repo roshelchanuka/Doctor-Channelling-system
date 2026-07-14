@@ -90,6 +90,9 @@ const Login = () => {
                             placeholder="Enter your password"
                             required 
                         />
+                        <div style={{ textAlign: 'right', marginTop: '8px' }}>
+                            <a href="/forgot-password" style={{ fontSize: '13px', color: '#007bff', textDecoration: 'none' }}>Forgot Password?</a>
+                        </div>
                     </div>
 
                     <button type="submit" className="login-btn">Login</button>

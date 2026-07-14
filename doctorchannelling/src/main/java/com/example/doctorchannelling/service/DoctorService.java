@@ -32,6 +32,10 @@ public class DoctorService {
         return doctorRepository.findBySpecialization(specialization);
     }
 
+    public List<Doctor> searchDoctors(String name, String specialization, String city, String hospital) {
+        return doctorRepository.searchDoctors(name, specialization, city, hospital);
+    }
+
     public Optional<Doctor> getDoctorById(Integer id) {
         return doctorRepository.findById(id);
     }
@@ -41,6 +45,9 @@ public class DoctorService {
             existingDoctor.setDoctorName(doctor.getDoctorName());
             existingDoctor.setSpecialization(doctor.getSpecialization());
             existingDoctor.setConsultationFee(doctor.getConsultationFee());
+            existingDoctor.setCity(doctor.getCity());
+            existingDoctor.setHospital(doctor.getHospital());
+            existingDoctor.setExperienceYears(doctor.getExperienceYears());
             existingDoctor.setSlots(doctor.getSlots());
             if (existingDoctor.getSlots() != null) {
                 existingDoctor.getSlots().forEach(slot -> slot.setDoctor(existingDoctor));

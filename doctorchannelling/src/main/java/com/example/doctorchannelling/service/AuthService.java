@@ -148,4 +148,67 @@ public class AuthService {
 
         return "A new OTP has been sent to your email.";
     }
+
+    public String forgotPassword(String emailId) {
+        if (emailId == null || emailId.isBlank()) {
+            return "Email is required!";
+        }
+
+        Optional<User> userOpt = userRepository.findByEmailId(emailId);
+        if (userOpt.isEmpty()) {
+            return "Email not found!";
+        }
+
+        User user = userOpt.get();
+        if (!user.isActive()) {
+            return "Account is suspended or inactive. Please contact admin.";
+        }
+
+        String otp = emailService.generateOTP();
+        user.setOtpCodeHash(passwordEncoder.encode(otp));
+        user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
+
+        userRepository.save(user);
+        emailService.sendPasswordResetEmail(user.getEmailId(), otp);
+
+        return "A password reset OTP has been sent to your email.";
+    }
+
+    public String resetPassword(String emailId, String otp, String newPassword) {
+        if (emailId == null || emailId.isBlank()) {
+            return "Email is required!";
+        }
+        if (otp == null || otp.isBlank()) {
+            return "OTP is required!";
+        }
+        if (newPassword == null || newPassword.isBlank()) {
+            return "New password is required!";
+        }
+
+        Optional<User> userOpt = userRepository.findByEmailId(emailId);
+        if (userOpt.isEmpty()) {
+            return "Email not found!";
+        }
+
+        User user = userOpt.get();
+
+        if (user.getOtpCodeHash() != null 
+                && passwordEncoder.matches(otp, user.getOtpCodeHash())
+                && user.getOtpExpiry() != null
+                && user.getOtpExpiry().isAfter(LocalDateTime.now())) {
+            
+            user.setPasswordHash(passwordEncoder.encode(newPassword));
+            user.setOtpCodeHash(null);
+            user.setOtpExpiry(null);
+            
+            // Optionally, unlock the account if it was locked
+            user.setFailedLoginAttempts(0);
+            user.setAccountLockedUntil(null);
+            
+            userRepository.save(user);
+            return "Password reset successfully! You can now log in.";
+        }
+
+        return "Invalid or expired OTP. Please try again.";
+    }
 }

@@ -46,6 +46,21 @@ public class Doctor {
     @Column(name = "ConsultationFee", nullable = false, precision = 10, scale = 2)
     private BigDecimal consultationFee;
 
+    @Column(name = "City", length = 100)
+    private String city;
+
+    @Column(name = "Hospital", length = 150)
+    private String hospital;
+
+    @Column(name = "ExperienceYears")
+    private Integer experienceYears;
+
+    @Column(name = "AverageRating", precision = 3, scale = 2)
+    private BigDecimal averageRating = BigDecimal.ZERO;
+
+    @Column(name = "TotalReviews")
+    private Integer totalReviews = 0;
+
     @Valid
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference
@@ -68,4 +83,19 @@ public class Doctor {
 
     public List<DoctorSlot> getSlots() { return slots; }
     public void setSlots(List<DoctorSlot> slots) { this.slots = slots; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+
+    public String getHospital() { return hospital; }
+    public void setHospital(String hospital) { this.hospital = hospital; }
+
+    public Integer getExperienceYears() { return experienceYears; }
+    public void setExperienceYears(Integer experienceYears) { this.experienceYears = experienceYears; }
+
+    public BigDecimal getAverageRating() { return averageRating; }
+    public void setAverageRating(BigDecimal averageRating) { this.averageRating = averageRating; }
+
+    public Integer getTotalReviews() { return totalReviews; }
+    public void setTotalReviews(Integer totalReviews) { this.totalReviews = totalReviews; }
 }

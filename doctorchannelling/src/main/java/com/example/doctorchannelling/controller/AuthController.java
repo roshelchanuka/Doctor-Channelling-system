@@ -68,5 +68,29 @@ public class AuthController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String emailId = request.get("emailId");
+
+        String response = authService.forgotPassword(emailId);
+        if (response.contains("sent to your email")) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+        String emailId = request.get("emailId");
+        String otpCode = request.get("otpCode");
+        String newPassword = request.get("newPassword");
+
+        String response = authService.resetPassword(emailId, otpCode, newPassword);
+        if (response.contains("successfully")) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }
  

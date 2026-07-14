@@ -33,4 +33,16 @@ public class EmailService {
         System.out.println("====== OTP FOR " + toEmail + " IS: " + otpCode + " ======");
         // mailSender.send(message);
     }
+
+    public void sendPasswordResetEmail(String toEmail, String otpCode) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Health Care - Password Reset");
+        message.setText("Welcome to Health Care System!\n\n"
+                + "Your One-Time Password (OTP) for password reset is: " + otpCode + "\n\n"
+                + "This OTP is valid for 5 minutes. Please do not share this code with anyone.");
+
+        System.out.println("====== PASSWORD RESET OTP FOR " + toEmail + " IS: " + otpCode + " ======");
+        // mailSender.send(message);
+    }
 }

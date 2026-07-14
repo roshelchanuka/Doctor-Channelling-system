@@ -10,6 +10,7 @@ const DoctorDashboard = () => {
     const [profileImageUrl, setProfileImageUrl] = useState(null);
     const [slots, setSlots] = useState([]);
     const [appointments, setAppointments] = useState([]);
+    const [reviews, setReviews] = useState([]);
     
     // For updating profile if it doesn't exist
     const [profileForm, setProfileForm] = useState({ doctorName: '', specialization: '', consultationFee: '' });
@@ -24,6 +25,17 @@ const DoctorDashboard = () => {
         endTime: '',
         maxPatients: 10
     });
+
+    // For Medical Records
+    const [recordModalOpen, setRecordModalOpen] = useState(false);
+    const [selectedAppointmentForRecord, setSelectedAppointmentForRecord] = useState(null);
+    const [recordForm, setRecordForm] = useState({
+        diagnosis: '', symptoms: '', notes: '', prescriptions: []
+    });
+    const [newMedicine, setNewMedicine] = useState({
+        medicineName: '', dosage: '', duration: '', instructions: ''
+    });
+    const [isSubmittingRecord, setIsSubmittingRecord] = useState(false);
 
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -45,6 +57,7 @@ const DoctorDashboard = () => {
         if (doctorProfile) {
             if (activeTab === 'slots') fetchSlots();
             if (activeTab === 'appointments') fetchAppointments();
+            if (activeTab === 'reviews') fetchReviews();
         }
     }, [activeTab, doctorProfile]);
 
@@ -90,6 +103,17 @@ const DoctorDashboard = () => {
             setAppointments(response.data);
         } catch (err) {
             setError("Failed to load appointments.");
+        }
+    };
+
+    const fetchReviews = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8085/api/reviews/doctor/${doctorProfile.doctorId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setReviews(response.data);
+        } catch (err) {
+            setError("Failed to load reviews.");
         }
     };
 
@@ -188,6 +212,50 @@ const DoctorDashboard = () => {
         navigate('/login');
     };
 
+    const handleAddMedicine = () => {
+        if (!newMedicine.medicineName || !newMedicine.dosage) return;
+        setRecordForm(prev => ({
+            ...prev,
+            prescriptions: [...prev.prescriptions, newMedicine]
+        }));
+        setNewMedicine({ medicineName: '', dosage: '', duration: '', instructions: '' });
+    };
+
+    const handleRemoveMedicine = (index) => {
+        setRecordForm(prev => {
+            const updated = [...prev.prescriptions];
+            updated.splice(index, 1);
+            return { ...prev, prescriptions: updated };
+        });
+    };
+
+    const handleRecordSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmittingRecord(true);
+        setError('');
+        try {
+            await axios.post('http://localhost:8085/api/medical-records', {
+                patientId: selectedAppointmentForRecord.patient.patientId,
+                doctorId: doctorProfile.doctorId,
+                appointmentId: selectedAppointmentForRecord.appointmentId,
+                diagnosis: recordForm.diagnosis,
+                symptoms: recordForm.symptoms,
+                notes: recordForm.notes,
+                prescriptions: recordForm.prescriptions
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setMessage('Medical Record added successfully!');
+            setRecordModalOpen(false);
+            setSelectedAppointmentForRecord(null);
+            setRecordForm({ diagnosis: '', symptoms: '', notes: '', prescriptions: [] });
+        } catch (err) {
+            setError('Failed to add medical record.');
+        } finally {
+            setIsSubmittingRecord(false);
+        }
+    };
+
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -263,6 +331,7 @@ const DoctorDashboard = () => {
                 <button className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
                 <button className={`tab-btn ${activeTab === 'slots' ? 'active' : ''}`} onClick={() => setActiveTab('slots')}>Manage Slots</button>
                 <button className={`tab-btn ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')}>Appointments</button>
+                <button className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Reviews</button>
             </div>
 
             {message && <div className="success-msg animate-fade-in">{message}</div>}
@@ -387,10 +456,128 @@ const DoctorDashboard = () => {
                                             </button>
                                         </div>
                                     )}
+                                    {app.appointmentStatus === 'Completed' && (
+                                        <button 
+                                            onClick={() => {
+                                                setSelectedAppointmentForRecord(app);
+                                                setRecordForm({ diagnosis: '', symptoms: '', notes: '', prescriptions: [] });
+                                                setRecordModalOpen(true);
+                                            }}
+                                            style={{ width: '100%', marginTop: '1rem', background: '#3182ce', color: 'white', border: 'none', padding: '0.6rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                                        >
+                                            📝 Add Medical Record
+                                        </button>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     )}
+                </div>
+            )}
+
+            {activeTab === 'reviews' && doctorProfile && (
+                <div className="animate-fade-in">
+                    <h3 style={{ marginTop: 0, marginBottom: '1rem', color: '#2b6cb0' }}>Patient Reviews & Ratings</h3>
+                    <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#e0f2fe', borderRadius: '12px', color: '#0369a1', display: 'flex', alignItems: 'center', gap: '1.5rem', border: '1px solid #bae6fd' }}>
+                        <span style={{ fontSize: '3rem' }}>⭐</span>
+                        <div>
+                            <div style={{ fontSize: '2rem', fontWeight: '800', lineHeight: '1.2' }}>{doctorProfile.averageRating || '0.0'} / 5.0</div>
+                            <div style={{ fontSize: '0.95rem', fontWeight: '600', opacity: 0.8 }}>Based on {doctorProfile.totalReviews || 0} reviews</div>
+                        </div>
+                    </div>
+                    {reviews.length === 0 ? <p style={{ color: '#64748b' }}>No reviews yet. As you complete appointments, patients can leave you feedback here.</p> : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            {reviews.map(review => (
+                                <div key={review.reviewId} className="card" style={{ padding: '1.5rem', borderLeft: '5px solid #f59e0b', borderRadius: '12px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
+                                        <strong style={{ fontSize: '1.15rem', color: '#1e293b' }}>{review.patient?.patientName || "Anonymous"}</strong>
+                                        <span style={{ color: '#f59e0b', fontSize: '1.3rem', letterSpacing: '2px' }}>
+                                            {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                                        </span>
+                                    </div>
+                                    <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+                                        {new Date(review.reviewDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </p>
+                                    <p style={{ margin: 0, color: '#334155', fontStyle: review.comment ? 'normal' : 'italic', lineHeight: '1.6' }}>
+                                        {review.comment || "No comment provided."}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Medical Record Modal */}
+            {recordModalOpen && selectedAppointmentForRecord && (
+                <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+                    <div className="modal-content" style={{ background: 'white', padding: '2rem', borderRadius: '12px', width: '90%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h3 style={{ margin: 0, color: '#2b6cb0' }}>Add Medical Record</h3>
+                            <button onClick={() => setRecordModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
+                        </div>
+                        <p style={{ marginBottom: '1.5rem', color: '#4a5568' }}>
+                            Patient: <strong>{selectedAppointmentForRecord.patient?.patientName}</strong><br/>
+                            Date: {selectedAppointmentForRecord.appointmentDate}
+                        </p>
+                        
+                        <form onSubmit={handleRecordSubmit}>
+                            <div className="form-group">
+                                <label>Diagnosis *</label>
+                                <input type="text" value={recordForm.diagnosis} onChange={e => setRecordForm({...recordForm, diagnosis: e.target.value})} required style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e0' }} />
+                            </div>
+                            <div className="form-group">
+                                <label>Symptoms *</label>
+                                <input type="text" value={recordForm.symptoms} onChange={e => setRecordForm({...recordForm, symptoms: e.target.value})} required style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e0' }} />
+                            </div>
+                            <div className="form-group">
+                                <label>Notes</label>
+                                <textarea value={recordForm.notes} onChange={e => setRecordForm({...recordForm, notes: e.target.value})} rows="2" style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e0' }}></textarea>
+                            </div>
+
+                            <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem', color: '#2d3748', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>Prescriptions</h4>
+                            
+                            {recordForm.prescriptions.length > 0 && (
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    {recordForm.prescriptions.map((med, index) => (
+                                        <div key={index} style={{ background: '#f7fafc', padding: '0.75rem', borderRadius: '6px', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #e2e8f0' }}>
+                                            <div>
+                                                <strong>{med.medicineName}</strong> - {med.dosage} <br/>
+                                                <span style={{ fontSize: '0.85rem', color: '#718096' }}>{med.duration} | {med.instructions}</span>
+                                            </div>
+                                            <button type="button" onClick={() => handleRemoveMedicine(index)} style={{ color: '#e53e3e', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>Remove</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div style={{ background: '#ebf8ff', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px dashed #90cdf4' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                                    <div>
+                                        <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Medicine Name *</label>
+                                        <input type="text" value={newMedicine.medicineName} onChange={e => setNewMedicine({...newMedicine, medicineName: e.target.value})} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e0' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Dosage *</label>
+                                        <input type="text" placeholder="e.g. 1 pill 2x a day" value={newMedicine.dosage} onChange={e => setNewMedicine({...newMedicine, dosage: e.target.value})} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e0' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Duration</label>
+                                        <input type="text" placeholder="e.g. 5 days" value={newMedicine.duration} onChange={e => setNewMedicine({...newMedicine, duration: e.target.value})} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e0' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Instructions</label>
+                                        <input type="text" placeholder="e.g. After meals" value={newMedicine.instructions} onChange={e => setNewMedicine({...newMedicine, instructions: e.target.value})} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e0' }} />
+                                    </div>
+                                </div>
+                                <button type="button" onClick={handleAddMedicine} style={{ background: '#3182ce', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}>+ Add Medicine</button>
+                            </div>
+
+                            <button type="submit" disabled={isSubmittingRecord} style={{ width: '100%', background: '#48bb78', color: 'white', border: 'none', padding: '0.85rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' }}>
+                                {isSubmittingRecord ? 'Saving...' : 'Save Medical Record'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>
