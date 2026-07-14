@@ -69,4 +69,38 @@ public class ReviewService {
     public List<Review> getReviewsByDoctorId(Integer doctorId) {
         return reviewRepository.findByDoctor_DoctorId(doctorId);
     }
+
+    public List<Review> getAllReviews() {
+        return reviewRepository.findAll();
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public boolean deleteReview(Integer reviewId) {
+        Optional<Review> reviewOpt = reviewRepository.findById(reviewId);
+        if (reviewOpt.isPresent()) {
+            Review review = reviewOpt.get();
+            Doctor doctor = review.getDoctor();
+            
+            reviewRepository.deleteById(reviewId);
+            
+            // Recalculate average rating for the doctor
+            List<Review> doctorReviews = reviewRepository.findByDoctor_DoctorId(doctor.getDoctorId());
+            
+            int totalReviews = doctorReviews.size();
+            double sum = 0;
+            for (Review r : doctorReviews) {
+                sum += r.getRating();
+            }
+            
+            double newAvg = (totalReviews > 0) ? (sum / totalReviews) : 0.0;
+            BigDecimal bd = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP);
+
+            doctor.setTotalReviews(totalReviews);
+            doctor.setAverageRating(bd);
+            doctorRepository.save(doctor);
+            
+            return true;
+        }
+        return false;
+    }
 }

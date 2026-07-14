@@ -42,4 +42,17 @@ public class ReviewController {
     public ResponseEntity<List<Review>> getReviewsByDoctorId(@PathVariable Integer doctorId) {
         return ResponseEntity.ok(reviewService.getReviewsByDoctorId(doctorId));
     }
+
+    @GetMapping
+    public ResponseEntity<List<Review>> getAllReviews() {
+        return ResponseEntity.ok(reviewService.getAllReviews());
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteReview(@PathVariable Integer id) {
+        if (reviewService.deleteReview(id)) {
+            return ResponseEntity.ok("Review deleted successfully!");
+        }
+        return ResponseEntity.badRequest().body("Review not found with ID: " + id);
+    }
 }

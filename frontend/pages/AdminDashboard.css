@@ -242,14 +242,28 @@
 .role-badge.doctor { background: rgba(16, 185, 129, 0.2); color: #34d399; }
 .role-badge.patient { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
 
+.status-badge.active { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.status-badge.suspended { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
 .status-badge.scheduled { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
 .status-badge.completed { background: rgba(16, 185, 129, 0.2); color: #34d399; }
 .status-badge.cancelled { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
-.btn-delete {
+.rating-badge {
+  background: rgba(245, 158, 11, 0.2); 
+  color: #fbbf24;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-delete, .btn-toggle {
   background: transparent;
-  color: var(--admin-danger);
-  border: 1px solid var(--admin-danger);
   padding: 6px 16px;
   border-radius: 6px;
   cursor: pointer;
@@ -258,13 +272,40 @@
   transition: all 0.2s ease;
 }
 
+.btn-delete {
+  color: var(--admin-danger);
+  border: 1px solid var(--admin-danger);
+}
+
 .btn-delete:hover {
   background: var(--admin-danger);
   color: white;
   box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
 }
 
-.status-select {
+.btn-toggle.suspend {
+  color: var(--admin-warning);
+  border: 1px solid var(--admin-warning);
+}
+
+.btn-toggle.suspend:hover {
+  background: var(--admin-warning);
+  color: white;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+}
+
+.btn-toggle.activate {
+  color: var(--admin-success);
+  border: 1px solid var(--admin-success);
+}
+
+.btn-toggle.activate:hover {
+  background: var(--admin-success);
+  color: white;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+}
+
+.status-select, .role-select {
   background: var(--admin-bg);
   color: var(--admin-text-primary);
   border: 1px solid var(--admin-border);
@@ -276,8 +317,36 @@
   transition: border-color 0.2s ease;
 }
 
-.status-select:focus {
+.role-select {
+    width: 100%;
+    padding: 14px 16px;
+}
+
+.status-select:focus, .role-select:focus {
   border-color: var(--admin-accent);
+}
+
+/* Charts */
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.chart-box {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.chart-box h3 {
+  margin: 0 0 20px 0;
+  color: var(--admin-text-primary);
+  font-size: 18px;
 }
 
 /* Forms */

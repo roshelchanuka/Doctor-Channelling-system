@@ -36,4 +36,13 @@ public class UserController {
         }
         return ResponseEntity.badRequest().body("User not found with ID: " + id);
     }
+
+    @org.springframework.web.bind.annotation.PutMapping("/{id}/toggle-status")
+    public ResponseEntity<?> toggleUserStatus(@PathVariable Integer id) {
+        java.util.Optional<User> updatedUser = userService.toggleUserStatus(id);
+        if (updatedUser.isPresent()) {
+            return ResponseEntity.ok(updatedUser.get());
+        }
+        return ResponseEntity.badRequest().body("User not found with ID: " + id);
+    }
 }
