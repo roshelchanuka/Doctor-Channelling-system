@@ -1,182 +1,264 @@
 .doctor-dashboard-container {
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 2rem auto;
     padding: 2rem;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #f8fafc;
+    min-height: 100vh;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
 }
 
 .dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .dashboard-header h2 {
-    color: #2d3748;
-    font-size: 2rem;
+    color: #1e293b;
+    font-size: 2.25rem;
+    font-weight: 800;
     margin: 0;
+    letter-spacing: -0.025em;
+    background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .logout-btn {
-    background: #e53e3e;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: white;
     border: none;
-    padding: 0.5rem 1.5rem;
-    border-radius: 6px;
+    padding: 0.6rem 1.8rem;
+    border-radius: 50px;
     cursor: pointer;
     font-weight: 600;
-    transition: background 0.2s;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
 .logout-btn:hover {
-    background: #c53030;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
 }
 
 .tabs-container {
     display: flex;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    display: inline-flex;
 }
 
 .tab-btn {
-    padding: 0.75rem 1.5rem;
-    background: #edf2f7;
+    padding: 0.85rem 1.75rem;
+    background: transparent;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    color: #4a5568;
-    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    color: #64748b;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab-btn:hover {
-    background: #e2e8f0;
+    color: #3b82f6;
+    background: #f1f5f9;
 }
 
 .tab-btn.active {
-    background: #3182ce;
+    background: #3b82f6;
     color: white;
-    box-shadow: 0 4px 6px rgba(49, 130, 206, 0.2);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .card {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    margin-bottom: 1.5rem;
-    border: 1px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
 }
 
 .slot-card {
     position: relative;
-    border-left: 4px solid #3182ce;
+    border-left: none;
+    border-top: 4px solid #3b82f6;
+    padding: 1.75rem;
 }
 
 .slot-card h4 {
     margin-top: 0;
-    color: #2b6cb0;
-    margin-bottom: 0.5rem;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
 }
 
 .slot-card p {
-    margin: 0.25rem 0;
-    color: #4a5568;
+    margin: 0.5rem 0;
+    color: #64748b;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.slot-card p strong {
+    color: #334155;
+    font-weight: 600;
 }
 
 .delete-btn {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: #fed7d7;
-    color: #c53030;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: #fee2e2;
+    color: #ef4444;
     border: none;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
     cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: bold;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
 }
 
-.delete-btn:hover {
-    background: #feb2b2;
+.delete-btn:hover:not(:disabled) {
+    background: #fecaca;
+    transform: scale(1.05);
 }
 
 .delete-btn:disabled {
-    background: #e2e8f0;
-    color: #a0aec0;
+    background: #f1f5f9;
+    color: #cbd5e1;
     cursor: not-allowed;
 }
 
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: #4a5568;
+    color: #334155;
+    font-size: 0.95rem;
 }
 
 .form-group input {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #cbd5e0;
-    border-radius: 6px;
+    padding: 0.85rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background: #f8fafc;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .submit-btn {
-    background: #3182ce;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 6px;
+    padding: 0.85rem 2.5rem;
+    border-radius: 50px;
     cursor: pointer;
-    font-weight: bold;
-    margin-top: 1rem;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
 .submit-btn:hover {
-    background: #2b6cb0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .success-msg {
-    background: #c6f6d5;
-    color: #22543d;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    background: #dcfce7;
+    color: #166534;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
     text-align: center;
-    font-weight: bold;
+    font-weight: 600;
+    border: 1px solid #bbf7d0;
 }
 
 .error-msg {
-    background: #fed7d7;
-    color: #9b2c2c;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
     text-align: center;
-    font-weight: bold;
+    font-weight: 600;
+    border: 1px solid #fecaca;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 /* Animations */
 .animate-fade-in {
-    animation: fadeIn 0.4s ease-in-out;
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Profile Picture styling */
+.profile-picture {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 3px solid white;
 }
