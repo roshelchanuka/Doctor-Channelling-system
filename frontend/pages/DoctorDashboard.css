@@ -24,6 +24,10 @@
     display: block;
 }
 
+.desktop-only-flex {
+    display: flex;
+}
+
 .mobile-only {
     display: none;
 }
@@ -79,9 +83,11 @@
     background: transparent;
     border: none;
     color: #64748b;
-    font-size: 24px;
+    font-size: 28px;
     cursor: pointer;
     transition: color 0.2s ease;
+    padding: 10px;
+    z-index: 101;
 }
 
 .close-sidebar-btn:hover {
@@ -159,12 +165,12 @@
         font-size: 1.75rem;
     }
     
-    .desktop-only {
+    .desktop-only, .desktop-only-flex {
         display: none;
     }
     
     .mobile-only {
-        display: block;
+        display: flex;
     }
     
     .mobile-menu-btn {
@@ -192,7 +198,7 @@
         flex-direction: column;
         gap: 0.5rem;
         background: white;
-        z-index: 100;
+        z-index: 300;
         transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3);
         border-radius: 0;

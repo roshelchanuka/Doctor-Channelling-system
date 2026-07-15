@@ -491,9 +491,11 @@
   background: transparent;
   border: none;
   color: var(--admin-text-secondary);
-  font-size: 24px;
+  font-size: 28px;
   cursor: pointer;
   transition: color 0.2s ease;
+  padding: 10px;
+  z-index: 101;
 }
 
 .close-sidebar-btn:hover {
