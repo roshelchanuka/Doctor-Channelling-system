@@ -464,3 +464,131 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--admin-text-secondary);
 }
+
+/* ════════════════════════════════════════════════════
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+   ════════════════════════════════════════════════════ */
+
+/* Sidebar Toggle Elements */
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--admin-text-primary);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.close-sidebar-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--admin-text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-sidebar-btn:hover {
+  color: var(--admin-danger);
+}
+
+.admin-sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .admin-sidebar {
+    width: 220px;
+  }
+  .admin-header, .admin-content-area {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard-wrapper {
+    flex-direction: column;
+  }
+  
+  .mobile-menu-btn {
+    display: block;
+  }
+  
+  .admin-sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+  }
+  
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    right: -280px; /* Hidden off-screen to the right */
+    left: auto;
+    height: 100vh;
+    width: 260px;
+    z-index: 100;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3);
+    border-right: none;
+    border-left: 1px solid var(--admin-border);
+  }
+  
+  .admin-sidebar.open {
+    right: 0;
+  }
+  
+  .admin-brand {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--admin-border);
+  }
+  
+  .close-sidebar-btn {
+    display: block;
+  }
+  
+  .admin-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-table-container {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-header h2 {
+    font-size: 22px;
+  }
+  
+  .admin-content-area {
+    padding: 10px;
+  }
+  
+  .stat-card {
+    padding: 15px;
+  }
+}
+

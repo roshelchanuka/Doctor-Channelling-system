@@ -6,6 +6,7 @@ import './AdminDashboard.css';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [stats, setStats] = useState({ users: 0, doctors: 0, patients: 0, appointments: 0 });
     const [users, setUsers] = useState([]);
     const [doctors, setDoctors] = useState([]);
@@ -428,9 +429,15 @@ const AdminDashboard = () => {
 
     return (
         <div className="admin-dashboard-wrapper">
-            <aside className="admin-sidebar">
+            {/* Sidebar Toggle Overlay for Mobile */}
+            {isSidebarOpen && <div className="admin-sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
+            
+            <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="admin-brand">
                     <h2>Admin <span>Panel</span></h2>
+                    <button className="close-sidebar-btn" onClick={() => setIsSidebarOpen(false)}>
+                        ✕
+                    </button>
                 </div>
                 <ul className="admin-nav">
                     <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>
@@ -462,6 +469,9 @@ const AdminDashboard = () => {
             <main className="admin-main-content">
                 <header className="admin-header">
                     <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace(/([A-Z])/g, ' $1').trim()}</h2>
+                    <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
+                        ☰
+                    </button>
                 </header>
                 <div className="admin-content-area">
                     {activeTab === 'dashboard' && renderDashboard()}

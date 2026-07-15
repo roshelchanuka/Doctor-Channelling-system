@@ -6,6 +6,7 @@ import './DoctorDashboard.css';
 
 const DoctorDashboard = () => {
     const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'slots', 'appointments'
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [doctorProfile, setDoctorProfile] = useState(null);
     const [profileImageUrl, setProfileImageUrl] = useState(null);
     const [slots, setSlots] = useState([]);
@@ -324,21 +325,28 @@ const DoctorDashboard = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                     <NotificationBell userId={userId} token={token} />
                     <button onClick={handleLogout} className="logout-btn">Logout</button>
+                    <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>☰</button>
                 </div>
             </header>
 
-            <div className="tabs-container">
-                <button className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
-                <button className={`tab-btn ${activeTab === 'slots' ? 'active' : ''}`} onClick={() => setActiveTab('slots')}>Manage Slots</button>
-                <button className={`tab-btn ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')}>Appointments</button>
-                <button className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Reviews</button>
+            {isSidebarOpen && <div className="doctor-sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
+
+            <div className={`tabs-container ${isSidebarOpen ? 'open' : ''}`}>
+                <div className="sidebar-brand-mobile">
+                    <h3>Menu</h3>
+                    <button className="close-sidebar-btn" onClick={() => setIsSidebarOpen(false)}>✕</button>
+                </div>
+                <button className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => {setActiveTab('overview'); setIsSidebarOpen(false);}}>Overview</button>
+                <button className={`tab-btn ${activeTab === 'slots' ? 'active' : ''}`} onClick={() => {setActiveTab('slots'); setIsSidebarOpen(false);}}>Manage Slots</button>
+                <button className={`tab-btn ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => {setActiveTab('appointments'); setIsSidebarOpen(false);}}>Appointments</button>
+                <button className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => {setActiveTab('reviews'); setIsSidebarOpen(false);}}>Reviews</button>
             </div>
 
             {message && <div className="success-msg animate-fade-in">{message}</div>}
             {error && <div className="error-msg animate-fade-in">{error}</div>}
 
             {activeTab === 'overview' && doctorProfile && (
-                <div className="card animate-fade-in" style={{ position: 'relative' }}>
+                <div className="animate-fade-in" style={{ position: 'relative', marginBottom: '2rem' }}>
                     <h3 style={{ color: '#2b6cb0', marginTop: 0 }}>My Profile</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', marginBottom: '1rem' }}>
                         <div className="profile-picture" style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#e2e8f0', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -370,9 +378,9 @@ const DoctorDashboard = () => {
 
             {activeTab === 'slots' && (
                 <div className="animate-fade-in">
-                    <div className="card">
+                    <div style={{ marginBottom: '2rem' }}>
                         <h3 style={{ marginTop: 0, color: '#2b6cb0' }}>Add New Availability Slot</h3>
-                        <form onSubmit={handleAddSlot} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+                        <form onSubmit={handleAddSlot} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: '2rem', alignItems: 'end', marginTop: '1.5rem' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                                 <label>Date</label>
                                 <input type="date" value={newSlot.availableDate} onChange={e => setNewSlot({...newSlot, availableDate: e.target.value})} required />
