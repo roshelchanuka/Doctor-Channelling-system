@@ -322,9 +322,9 @@ const DoctorDashboard = () => {
         <div className="doctor-dashboard-container animate-fade-in">
             <header className="dashboard-header">
                 <h2>Doctor Dashboard</h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                <div className="header-actions">
                     <NotificationBell userId={userId} token={token} />
-                    <button onClick={handleLogout} className="logout-btn">Logout</button>
+                    <button onClick={handleLogout} className="logout-btn desktop-only">Logout</button>
                     <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>☰</button>
                 </div>
             </header>
@@ -340,6 +340,10 @@ const DoctorDashboard = () => {
                 <button className={`tab-btn ${activeTab === 'slots' ? 'active' : ''}`} onClick={() => {setActiveTab('slots'); setIsSidebarOpen(false);}}>Manage Slots</button>
                 <button className={`tab-btn ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => {setActiveTab('appointments'); setIsSidebarOpen(false);}}>Appointments</button>
                 <button className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => {setActiveTab('reviews'); setIsSidebarOpen(false);}}>Reviews</button>
+                
+                <div className="mobile-only" style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+                    <button onClick={handleLogout} className="tab-btn" style={{ color: '#ef4444' }}>Logout</button>
+                </div>
             </div>
 
             {message && <div className="success-msg animate-fade-in">{message}</div>}

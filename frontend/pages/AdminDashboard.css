@@ -475,9 +475,15 @@
   background: transparent;
   border: none;
   color: var(--admin-text-primary);
-  font-size: 24px;
+  font-size: 32px;
   cursor: pointer;
   padding: 5px;
+  z-index: 200;
+  transition: transform 0.2s ease;
+}
+
+.mobile-menu-btn:hover {
+  transform: scale(1.1);
 }
 
 .close-sidebar-btn {
@@ -485,7 +491,7 @@
   background: transparent;
   border: none;
   color: var(--admin-text-secondary);
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
   transition: color 0.2s ease;
 }
@@ -507,7 +513,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .admin-dashboard-wrapper {
     flex-direction: column;
   }
@@ -563,6 +569,7 @@
     justify-content: space-between;
     width: 100%;
     box-sizing: border-box;
+    padding: 15px 20px;
   }
   
   .charts-container {
