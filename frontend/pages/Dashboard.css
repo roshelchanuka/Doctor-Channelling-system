@@ -1449,10 +1449,45 @@
 }
 
 /* ─── Responsive ────────────────────────────────────── */
-@media (max-width: 768px) {
-    .sidebar-open { width: 220px; }
+.mobile-close-btn {
+    display: none;
+}
 
-    .panel-with-sidebar { margin-left: 220px; }
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 200;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 260px;
+    }
+
+    .sidebar-open { 
+        transform: translateX(0); 
+    }
+
+    .sidebar-closed { 
+        transform: translateX(-100%); 
+        width: 260px; /* override the 72px */
+    }
+
+    .panel-with-sidebar, .panel-collapsed { 
+        margin-left: 0; 
+    }
+
+    .mobile-close-btn {
+        display: block;
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: #f87171;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.2rem;
+    }
 
     .hero-greeting {
         flex-direction: column;
@@ -1473,8 +1508,7 @@
 
 @media (max-width: 480px) {
     .sidebar-open { width: 100vw; position: fixed; z-index: 200; }
-    .panel-with-sidebar { margin-left: 0; }
-    .panel-collapsed { margin-left: 72px; }
+    .sidebar-closed { width: 100vw; }
     .quick-grid { grid-template-columns: repeat(2, 1fr); }
     .appointments-grid { grid-template-columns: 1fr; }
 }

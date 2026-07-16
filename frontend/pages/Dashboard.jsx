@@ -795,6 +795,7 @@ const Dashboard = () => {
                 <div className="sidebar-brand">
                     <span className="brand-icon">🏥</span>
                     {sidebarOpen && <span className="brand-name">MediConnect</span>}
+                    <button className="mobile-close-btn" onClick={() => setSidebarOpen(false)}>✖</button>
                 </div>
 
                 <nav className="sidebar-nav">
@@ -802,7 +803,13 @@ const Dashboard = () => {
                         <button
                             key={item.id}
                             className={`nav-item ${activeTab === item.id ? 'nav-active' : ''}`}
-                            onClick={() => { setActiveTab(item.id); setSelectedDoctor(null); setMessage(''); setError(''); }}
+                            onClick={() => { 
+                                setActiveTab(item.id); 
+                                setSelectedDoctor(null); 
+                                setMessage(''); 
+                                setError(''); 
+                                if (window.innerWidth <= 768) setSidebarOpen(false);
+                            }}
                             title={!sidebarOpen ? item.label : ''}
                         >
                             <span className="nav-icon">{item.icon}</span>
