@@ -53,7 +53,7 @@ const ReportView = ({ title, category, token }) => {
     };
 
     return (
-        <div className="receptionist-form-container" style={{ width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'var(--receptionist-card)', padding: '24px', borderRadius: '16px', border: '1px solid var(--receptionist-border)' }}>
+        <div className="receptionist-form-container" style={{ width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'var(--receptionist-card)', padding: '24px', borderRadius: '16px', border: '1px solid var(--receptionist-border)', boxSizing: 'border-box' }}>
             <div>
                 <h3 style={{ margin: '0 0 8px 0', color: 'var(--receptionist-text-primary)' }}>{title}</h3>
                 <p style={{ margin: 0, color: 'var(--receptionist-text-secondary)' }}>Preview and download the {title.toLowerCase()} for the channeling system.</p>

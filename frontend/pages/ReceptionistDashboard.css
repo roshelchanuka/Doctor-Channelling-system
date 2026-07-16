@@ -16,7 +16,7 @@
 .receptionist-dashboard-wrapper {
   display: flex;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
   background-color: var(--receptionist-bg);
   color: var(--receptionist-text-primary);
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -81,6 +81,7 @@
   color: var(--receptionist-text-secondary);
   transition: all 0.3s ease;
   border-left: 3px solid transparent;
+  box-sizing: border-box;
 }
 
 .receptionist-nav li:hover, .receptionist-nav button:hover {
@@ -105,6 +106,7 @@
   padding: 12px 25px 12px 50px;
   font-size: 14px;
   border-left: 3px solid transparent;
+  box-sizing: border-box;
 }
 
 .receptionist-submenu li:hover {
@@ -145,6 +147,7 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--receptionist-bg);
 }
 
