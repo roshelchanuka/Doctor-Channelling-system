@@ -31,7 +31,7 @@ public class User {
     private String passwordHash;
 
     @NotBlank
-    @Pattern(regexp = "Patient|Doctor|Admin")
+    @Pattern(regexp = "Patient|Doctor|Admin|Receptionist")
     @Column(name = "Role", nullable = false, length = 20)
     private String role;
 

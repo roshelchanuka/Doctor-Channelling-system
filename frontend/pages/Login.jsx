@@ -44,6 +44,8 @@ const Login = () => {
                     navigate('/doctor-dashboard');
                 } else if (data.role && data.role.toUpperCase() === 'ADMIN') {
                     navigate('/admin-dashboard');
+                } else if (data.role && data.role.toUpperCase() === 'RECEPTIONIST') {
+                    navigate('/receptionist-dashboard');
                 } else {
                     navigate('/dashboard');
                 }
@@ -52,7 +54,14 @@ const Login = () => {
             }
         } catch (err) {
             if (err.response && err.response.data) {
-                setError(err.response.data);
+                const errorData = err.response.data;
+                if (typeof errorData === 'string') {
+                    setError(errorData);
+                } else if (errorData.error || errorData.message) {
+                    setError(errorData.message || errorData.error);
+                } else {
+                    setError(JSON.stringify(errorData));
+                }
             } else {
                 setError("Login failed. Please try again.");
             }

@@ -5,6 +5,7 @@ import Dashboard from '../pages/Dashboard';
 import CompleteProfile from '../pages/CompleteProfile';
 import DoctorDashboard from '../pages/DoctorDashboard';
 import AdminDashboard from '../pages/AdminDashboard';
+import ReceptionistDashboard from '../pages/ReceptionistDashboard';
 import LandingPage from '../pages/LandingPage';
 import PrivacyPolicy from '../pages/PrivacyPolicy';
 import ForgotPassword from '../pages/ForgotPassword';
@@ -42,6 +43,14 @@ function App() {
         element={
           <ProtectedRoute requiredRole="ADMIN">
             <AdminDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/receptionist-dashboard" 
+        element={
+          <ProtectedRoute requiredRole="RECEPTIONIST">
+            <ReceptionistDashboard />
           </ProtectedRoute>
         } 
       />

@@ -14,6 +14,10 @@ const AdminDashboard = () => {
     const [appointments, setAppointments] = useState([]);
     const [reviews, setReviews] = useState([]);
     
+    // Report Preview State
+    const [previewModalOpen, setPreviewModalOpen] = useState(false);
+    const [reportPreview, setReportPreview] = useState(null); // { type: 'pdf' | 'excel', url: string }
+    
     // Register Admin/Doctor Form
     const [adminForm, setAdminForm] = useState({ emailId: '', password: '', role: 'Admin' });
     const [adminFormMsg, setAdminFormMsg] = useState({ type: '', text: '' });
@@ -129,6 +133,33 @@ const AdminDashboard = () => {
                 setAdminFormMsg({ type: 'error', text: "Registration failed. Please try again." });
             }
         }
+    };
+
+    const handleGenerateReport = async (type) => {
+        try {
+            const response = await axios.get(`http://localhost:8085/api/reports/${type}`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                responseType: 'blob'
+            });
+            
+            const mimeType = type === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
+            setReportPreview({ type, url });
+            setPreviewModalOpen(true);
+        } catch (error) {
+            console.error("Error generating report:", error);
+            alert("Failed to generate report. Make sure the backend supports this endpoint.");
+        }
+    };
+
+    const handleDownloadPreview = () => {
+        if (!reportPreview) return;
+        const link = document.createElement('a');
+        link.href = reportPreview.url;
+        link.setAttribute('download', `admin_report.${reportPreview.type}`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
     };
 
     const renderDashboard = () => {
@@ -422,6 +453,18 @@ const AdminDashboard = () => {
         </div>
     );
 
+    const renderReports = () => (
+        <div className="admin-form-container">
+            <h3>Generate System Reports</h3>
+            <p>Download comprehensive reports for the channeling system.</p>
+            
+            <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
+                <button className="btn-primary" onClick={() => handleGenerateReport('pdf')}>Generate PDF Report</button>
+                <button className="btn-primary" onClick={() => handleGenerateReport('excel')}>Generate Excel Report</button>
+            </div>
+        </div>
+    );
+
     const handleLogout = () => {
         localStorage.clear();
         navigate('/login');
@@ -458,6 +501,9 @@ const AdminDashboard = () => {
                     <li className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>
                         <i className="icon-reviews"></i> Manage Reviews
                     </li>
+                    <li className={activeTab === 'reports' ? 'active' : ''} onClick={() => setActiveTab('reports')}>
+                        <i className="icon-reports"></i> Reports
+                    </li>
                     <li className={activeTab === 'registerAdmin' ? 'active' : ''} onClick={() => setActiveTab('registerAdmin')}>
                         <i className="icon-admin"></i> Register User
                     </li>
@@ -480,9 +526,44 @@ const AdminDashboard = () => {
                     {activeTab === 'patients' && renderPatients()}
                     {activeTab === 'appointments' && renderAppointments()}
                     {activeTab === 'reviews' && renderReviews()}
+                    {activeTab === 'reports' && renderReports()}
                     {activeTab === 'registerAdmin' && renderRegisterAdmin()}
                 </div>
             </main>
+
+            {/* Report Preview Modal */}
+            {previewModalOpen && reportPreview && (
+                <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.8)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}}>
+                    <div className="modal-content" style={{background: 'var(--admin-card)', border: '1px solid var(--admin-border)', borderRadius: '16px', width: '80%', maxWidth: '900px', height: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'}}>
+                        <div className="modal-header" style={{padding: '20px 24px', borderBottom: '1px solid var(--admin-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <h3 style={{margin: 0, color: 'var(--admin-text-primary)'}}>Report Preview ({reportPreview.type.toUpperCase()})</h3>
+                            <button className="close-btn" style={{background: 'transparent', border: 'none', color: 'var(--admin-text-secondary)', fontSize: '24px', cursor: 'pointer'}} onClick={() => setPreviewModalOpen(false)}>✕</button>
+                        </div>
+                        <div className="modal-body" style={{flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--admin-bg)'}}>
+                            {reportPreview.type === 'pdf' ? (
+                                <iframe 
+                                    src={reportPreview.url} 
+                                    style={{width: '100%', height: '100%', border: `1px solid var(--admin-border)`, borderRadius: '8px', background: 'white'}}
+                                    title="PDF Report Preview"
+                                />
+                            ) : (
+                                <div style={{textAlign: 'center', color: 'var(--admin-text-primary)'}}>
+                                    <i style={{fontSize: '64px', color: 'var(--admin-success)', marginBottom: '16px'}}>📊</i>
+                                    <h3>Excel Report Generated</h3>
+                                    <p>Preview is not available for Excel files in the browser.</p>
+                                    <p>Please click 'Download File' to view.</p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="modal-footer" style={{padding: '20px 24px', borderTop: '1px solid var(--admin-border)', display: 'flex', justifyContent: 'flex-end', gap: '12px'}}>
+                            <button className="btn-secondary" style={{padding: '10px 20px', background: 'transparent', color: 'var(--admin-text-primary)', border: '1px solid var(--admin-border)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600}} onClick={() => setPreviewModalOpen(false)}>Close</button>
+                            <button className="btn-primary" onClick={handleDownloadPreview}>
+                                Download File
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

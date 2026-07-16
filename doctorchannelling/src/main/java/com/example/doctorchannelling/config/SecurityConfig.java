@@ -33,8 +33,9 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
-                    "/swagger-ui.html"
-                ).permitAll() // Swagger URL සඳහා සත්‍යාපනය අවශ්‍ය නොවේ
+                    "/swagger-ui.html",
+                    "/ws/**"
+                ).permitAll() // Swagger and WebSocket URLs සඳහා සත්‍යාපනය අවශ්‍ය නොවේ
                 .anyRequest().authenticated() // Require authentication for all other requests
             )
             .sessionManagement(session -> session

@@ -17,6 +17,8 @@ const ProtectedRoute = ({ children, requiredRole }) => {
             return <Navigate to="/doctor-dashboard" replace />;
         } else if (role && role.toUpperCase() === 'ADMIN') {
             return <Navigate to="/admin-dashboard" replace />;
+        } else if (role && role.toUpperCase() === 'RECEPTIONIST') {
+            return <Navigate to="/receptionist-dashboard" replace />;
         } else {
             return <Navigate to="/dashboard" replace />;
         }

@@ -11,10 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.doctorchannelling.model.Admin;
 import com.example.doctorchannelling.model.Doctor;
 import com.example.doctorchannelling.model.Patient;
+import com.example.doctorchannelling.model.Receptionist;
 import com.example.doctorchannelling.model.User;
 import com.example.doctorchannelling.repository.AdminRepository;
 import com.example.doctorchannelling.repository.DoctorRepository;
 import com.example.doctorchannelling.repository.PatientRepository;
+import com.example.doctorchannelling.repository.ReceptionistRepository;
 import com.example.doctorchannelling.repository.UserRepository;
 
 /**
@@ -29,6 +31,7 @@ public class DataSeeder implements CommandLineRunner {
     private final AdminRepository adminRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
+    private final ReceptionistRepository receptionistRepository;
     private final PasswordEncoder passwordEncoder;
 
     public DataSeeder(
@@ -36,11 +39,13 @@ public class DataSeeder implements CommandLineRunner {
             AdminRepository adminRepository,
             DoctorRepository doctorRepository,
             PatientRepository patientRepository,
+            ReceptionistRepository receptionistRepository,
             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
+        this.receptionistRepository = receptionistRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -54,9 +59,10 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("\n====================================================");
         System.out.println("  TEST ACCOUNTS (Doctor Channelling System)");
         System.out.println("====================================================");
-        System.out.println("  ADMIN   : admin@docChannel.com   / Admin@123");
-        System.out.println("  DOCTOR  : doctor@docChannel.com  / Doctor@123");
-        System.out.println("  PATIENT : patient@docChannel.com / Patient@123");
+        System.out.println("  ADMIN        : admin@docChannel.com   / Admin@123");
+        System.out.println("  DOCTOR       : doctor@docChannel.com  / Doctor@123");
+        System.out.println("  PATIENT      : patient@docChannel.com / Patient@123");
+        System.out.println("  RECEPTIONIST : receptionist@docChannel.com / Receptionist@123");
         System.out.println("====================================================\n");
     }
 
