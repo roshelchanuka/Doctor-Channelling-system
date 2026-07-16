@@ -4,18 +4,91 @@ import axios from 'axios';
 import ChatWindow from '../src/components/ChatWindow';
 import './ReceptionistDashboard.css';
 
+const ReportView = ({ title, category, token }) => {
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let url;
+        const fetchPreview = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`http://localhost:8085/api/reports/${category}/pdf`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    responseType: 'blob'
+                });
+                url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                setPreviewUrl(url);
+            } catch (error) {
+                console.error("Error fetching preview:", error);
+            }
+            setLoading(false);
+        };
+        fetchPreview();
+
+        return () => {
+            if (url) window.URL.revokeObjectURL(url);
+        };
+    }, [category, token]);
+
+    const handleDownload = async (format) => {
+        try {
+            const response = await axios.get(`http://localhost:8085/api/reports/${category}/${format}`, {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: 'blob'
+            });
+            const mimeType = format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${category}_report.${format}`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading report:", error);
+            alert("Failed to download report.");
+        }
+    };
+
+    return (
+        <div className="receptionist-form-container" style={{ width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column', gap: '20px', background: 'var(--receptionist-card)', padding: '24px', borderRadius: '16px', border: '1px solid var(--receptionist-border)' }}>
+            <div>
+                <h3 style={{ margin: '0 0 8px 0', color: 'var(--receptionist-text-primary)' }}>{title}</h3>
+                <p style={{ margin: 0, color: 'var(--receptionist-text-secondary)' }}>Preview and download the {title.toLowerCase()} for the channeling system.</p>
+            </div>
+            
+            <div className="report-preview-box" style={{ width: '100%', height: '500px', border: '1px solid var(--receptionist-border)', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+                {loading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--receptionist-text-secondary)' }}>Loading preview...</div>
+                ) : previewUrl ? (
+                    <iframe src={previewUrl} width="100%" height="100%" title="Report Preview" style={{ border: 'none' }} />
+                ) : (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--receptionist-error)' }}>Failed to load preview</div>
+                )}
+            </div>
+            
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button className="btn-primary" style={{ padding: '8px 16px', fontSize: '14px', width: 'auto' }} onClick={() => handleDownload('pdf')}>Export to PDF</button>
+                <button className="btn-primary" style={{ padding: '8px 16px', fontSize: '14px', width: 'auto' }} onClick={() => handleDownload('excel')}>Export to Excel</button>
+            </div>
+        </div>
+    );
+};
+
 const ReceptionistDashboard = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({ activeChats: 0, appointmentsToday: 0 });
     const [conversations, setConversations] = useState([]);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isReportsOpen, setIsReportsOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('dashboard');
     const [selectedConversation, setSelectedConversation] = useState(null);
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
     
-    // Report Preview State
-    const [previewModalOpen, setPreviewModalOpen] = useState(false);
-    const [reportPreview, setReportPreview] = useState(null); // { type: 'pdf' | 'excel', url: string }
-
+    // Authentication & Authorization handled in useEffect
     useEffect(() => {
         const role = localStorage.getItem('role');
         if (!token || !role || role.toUpperCase() !== 'RECEPTIONIST') {
@@ -42,33 +115,6 @@ const ReceptionistDashboard = () => {
         }
     };
 
-    const handleGenerateReport = async (type) => {
-        try {
-            const response = await axios.get(`http://localhost:8085/api/reports/${type}`, {
-                headers: { Authorization: `Bearer ${token}` },
-                responseType: 'blob'
-            });
-            
-            const mimeType = type === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
-            setReportPreview({ type, url });
-            setPreviewModalOpen(true);
-        } catch (error) {
-            console.error("Error generating report:", error);
-            alert("Failed to generate report. Make sure the backend supports this endpoint.");
-        }
-    };
-
-    const handleDownloadPreview = () => {
-        if (!reportPreview) return;
-        const link = document.createElement('a');
-        link.href = reportPreview.url;
-        link.setAttribute('download', `receptionist_report.${reportPreview.type}`);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-    };
-
     const handleLogout = () => {
         localStorage.clear();
         navigate('/login');
@@ -76,16 +122,30 @@ const ReceptionistDashboard = () => {
 
     return (
         <div className="receptionist-dashboard-wrapper">
+            {/* Sidebar Toggle Overlay for Mobile */}
+            {isSidebarOpen && <div className="receptionist-sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
+            
             {/* Sidebar */}
-            <aside className="receptionist-sidebar">
+            <aside className={`receptionist-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="receptionist-brand">
                     <h2>Doc<span>Channel</span></h2>
-                    <p>Reception Desk</p>
+                    <button className="close-sidebar-btn" onClick={() => setIsSidebarOpen(false)}>✕</button>
                 </div>
+                <p style={{ margin: '0 20px 20px', fontSize: '0.85rem', color: 'var(--receptionist-text-secondary)' }}>Reception Desk</p>
                 <ul className="receptionist-nav">
-                    <li className="active">Dashboard</li>
-                    <button onClick={() => handleGenerateReport('pdf')}>Generate PDF Report</button>
-                    <button onClick={() => handleGenerateReport('excel')}>Generate Excel Report</button>
+                    <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>Dashboard</li>
+                    <li className={activeTab.startsWith('report') ? 'active' : ''} onClick={() => setIsReportsOpen(!isReportsOpen)}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center'}}>
+                            <span>Reports</span>
+                            <span style={{fontSize: '12px'}}>{isReportsOpen ? '▼' : '▶'}</span>
+                        </div>
+                    </li>
+                    {isReportsOpen && (
+                        <ul className="receptionist-submenu">
+                            <li className={activeTab === 'report-patient' ? 'active' : ''} onClick={() => setActiveTab('report-patient')}>Patient Demographics</li>
+                            <li className={activeTab === 'report-doctor' ? 'active' : ''} onClick={() => setActiveTab('report-doctor')}>Doctor Performance</li>
+                        </ul>
+                    )}
                 </ul>
                 <div className="receptionist-logout">
                     <button onClick={handleLogout}>Logout</button>
@@ -95,87 +155,68 @@ const ReceptionistDashboard = () => {
             {/* Main Content */}
             <main className="receptionist-main-content">
                 <header className="receptionist-header">
-                    <h2>Welcome, Receptionist</h2>
-                    <p>Manage your chats and generate reports easily.</p>
+                    <div>
+                        <h2>Welcome, Receptionist</h2>
+                        <p>Manage your chats and generate reports easily.</p>
+                    </div>
+                    <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>☰</button>
                 </header>
 
                 <div className="receptionist-content-area">
-                    {/* Conversations List */}
-                    <div className="conversations-container">
-                        <h3>Active Inquiries</h3>
-                        <div className="conversations-list">
-                            {conversations.length === 0 ? (
-                                <p style={{color: 'var(--receptionist-text-secondary)', padding: '12px'}}>No active chats.</p>
-                            ) : (
-                                conversations.map(conv => (
-                                    <div 
-                                        key={conv.conversationId} 
-                                        className={`conversation-card ${selectedConversation?.conversationId === conv.conversationId ? 'active' : ''}`}
-                                        onClick={() => setSelectedConversation(conv)}
-                                    >
-                                        <div className="avatar">{conv.patientName ? conv.patientName.charAt(0) : 'P'}</div>
-                                        <div className="conv-details">
-                                            <h4>{conv.patientName || `Patient #${conv.patientId}`}</h4>
-                                            <span className="badge-open">Open</span>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Chat Area */}
-                    <div className="chat-container">
-                        {selectedConversation ? (
-                            <ChatWindow 
-                                conversation={selectedConversation} 
-                                receptionistId={userId} 
-                                token={token} 
-                            />
-                        ) : (
-                            <div className="empty-chat-state">
-                                <div className="illustration">💬</div>
-                                <h3>Select a conversation to start chatting</h3>
-                                <p>Respond to patient inquiries in real-time.</p>
+                    {activeTab === 'dashboard' && (
+                        <>
+                            {/* Conversations List */}
+                            <div className="conversations-container">
+                                <h3>Active Inquiries</h3>
+                                <div className="conversations-list">
+                                    {conversations.length === 0 ? (
+                                        <p style={{color: 'var(--receptionist-text-secondary)', padding: '12px'}}>No active chats.</p>
+                                    ) : (
+                                        conversations.map(conv => (
+                                            <div 
+                                                key={conv.conversationId} 
+                                                className={`conversation-card ${selectedConversation?.conversationId === conv.conversationId ? 'active' : ''}`}
+                                                onClick={() => setSelectedConversation(conv)}
+                                            >
+                                                <div className="avatar">{conv.patientName ? conv.patientName.charAt(0) : 'P'}</div>
+                                                <div className="conv-details">
+                                                    <h4>{conv.patientName || `Patient #${conv.patientId}`}</h4>
+                                                    <span className="badge-open">Open</span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
                             </div>
-                        )}
-                    </div>
+
+                            {/* Chat Area */}
+                            <div className="chat-container">
+                                {selectedConversation ? (
+                                    <ChatWindow 
+                                        conversation={selectedConversation} 
+                                        receptionistId={userId} 
+                                        token={token} 
+                                    />
+                                ) : (
+                                    <div className="empty-chat-state">
+                                        <div className="illustration">💬</div>
+                                        <h3>Select a conversation to start chatting</h3>
+                                        <p>Respond to patient inquiries in real-time.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+
+                    {activeTab === 'report-patient' && (
+                        <ReportView title="Patient Demographics Report" category="patient" token={token} />
+                    )}
+                    {activeTab === 'report-doctor' && (
+                        <ReportView title="Doctor Performance Report" category="doctor" token={token} />
+                    )}
                 </div>
             </main>
 
-            {/* Report Preview Modal */}
-            {previewModalOpen && reportPreview && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h3>Report Preview ({reportPreview.type.toUpperCase()})</h3>
-                            <button className="close-btn" onClick={() => setPreviewModalOpen(false)}>✕</button>
-                        </div>
-                        <div className="modal-body">
-                            {reportPreview.type === 'pdf' ? (
-                                <iframe 
-                                    src={reportPreview.url} 
-                                    className="report-iframe" 
-                                    title="PDF Report Preview"
-                                />
-                            ) : (
-                                <div className="excel-placeholder">
-                                    <i>📊</i>
-                                    <h3>Excel Report Generated</h3>
-                                    <p>Preview is not available for Excel files in the browser.</p>
-                                    <p>Please click 'Download File' to view.</p>
-                                </div>
-                            )}
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn-secondary" onClick={() => setPreviewModalOpen(false)}>Close</button>
-                            <button className="btn-primary" onClick={handleDownloadPreview}>
-                                Download File
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.doctorchannelling.service.ReportService;
@@ -16,26 +17,26 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
-    @GetMapping("/pdf")
-    public ResponseEntity<byte[]> getPdfReport() {
-        byte[] pdfBytes = reportService.generatePdfReport();
+    @GetMapping("/{category}/pdf")
+    public ResponseEntity<byte[]> getPdfReport(@PathVariable("category") String category) {
+        byte[] pdfBytes = reportService.generatePdfReport(category);
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "monthly_report.pdf");
+        headers.setContentDispositionFormData("attachment", category + "_report.pdf");
         
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdfBytes);
     }
 
-    @GetMapping("/excel")
-    public ResponseEntity<byte[]> getExcelReport() {
-        byte[] excelBytes = reportService.generateExcelReport();
+    @GetMapping("/{category}/excel")
+    public ResponseEntity<byte[]> getExcelReport(@PathVariable("category") String category) {
+        byte[] excelBytes = reportService.generateExcelReport(category);
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        headers.setContentDispositionFormData("attachment", "monthly_report.xlsx");
+        headers.setContentDispositionFormData("attachment", category + "_report.xlsx");
         
         return ResponseEntity.ok()
                 .headers(headers)

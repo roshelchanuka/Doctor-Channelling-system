@@ -4,19 +4,89 @@ import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import './AdminDashboard.css';
 
+const ReportView = ({ title, category }) => {
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let url;
+        const fetchPreview = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`http://localhost:8085/api/reports/${category}/pdf`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                    responseType: 'blob'
+                });
+                url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                setPreviewUrl(url);
+            } catch (error) {
+                console.error("Error fetching preview:", error);
+            }
+            setLoading(false);
+        };
+        fetchPreview();
+
+        return () => {
+            if (url) window.URL.revokeObjectURL(url);
+        };
+    }, [category]);
+
+    const handleDownload = async (format) => {
+        try {
+            const response = await axios.get(`http://localhost:8085/api/reports/${category}/${format}`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                responseType: 'blob'
+            });
+            const mimeType = format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${category}_report.${format}`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading report:", error);
+            alert("Failed to download report.");
+        }
+    };
+
+    return (
+        <div className="admin-form-container" style={{ maxWidth: '1000px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+                <h3>{title}</h3>
+                <p>Preview and download the {title.toLowerCase()} for the channeling system.</p>
+            </div>
+            
+            <div className="report-preview-box" style={{ width: '100%', height: '500px', border: '1px solid var(--admin-border)', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+                {loading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--admin-text-secondary)' }}>Loading preview...</div>
+                ) : previewUrl ? (
+                    <iframe src={previewUrl} width="100%" height="100%" title="Report Preview" style={{ border: 'none' }} />
+                ) : (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--admin-error)' }}>Failed to load preview</div>
+                )}
+            </div>
+            
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button className="btn-primary" style={{ padding: '8px 16px', fontSize: '14px', width: 'auto' }} onClick={() => handleDownload('pdf')}>Export to PDF</button>
+                <button className="btn-primary" style={{ padding: '8px 16px', fontSize: '14px', width: 'auto' }} onClick={() => handleDownload('excel')}>Export to Excel</button>
+            </div>
+        </div>
+    );
+};
+
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isReportsOpen, setIsReportsOpen] = useState(false);
     const [stats, setStats] = useState({ users: 0, doctors: 0, patients: 0, appointments: 0 });
     const [users, setUsers] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [patients, setPatients] = useState([]);
     const [appointments, setAppointments] = useState([]);
     const [reviews, setReviews] = useState([]);
-    
-    // Report Preview State
-    const [previewModalOpen, setPreviewModalOpen] = useState(false);
-    const [reportPreview, setReportPreview] = useState(null); // { type: 'pdf' | 'excel', url: string }
     
     // Register Admin/Doctor Form
     const [adminForm, setAdminForm] = useState({ emailId: '', password: '', role: 'Admin' });
@@ -133,33 +203,6 @@ const AdminDashboard = () => {
                 setAdminFormMsg({ type: 'error', text: "Registration failed. Please try again." });
             }
         }
-    };
-
-    const handleGenerateReport = async (type) => {
-        try {
-            const response = await axios.get(`http://localhost:8085/api/reports/${type}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                responseType: 'blob'
-            });
-            
-            const mimeType = type === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
-            setReportPreview({ type, url });
-            setPreviewModalOpen(true);
-        } catch (error) {
-            console.error("Error generating report:", error);
-            alert("Failed to generate report. Make sure the backend supports this endpoint.");
-        }
-    };
-
-    const handleDownloadPreview = () => {
-        if (!reportPreview) return;
-        const link = document.createElement('a');
-        link.href = reportPreview.url;
-        link.setAttribute('download', `admin_report.${reportPreview.type}`);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
     };
 
     const renderDashboard = () => {
@@ -407,7 +450,7 @@ const AdminDashboard = () => {
     const renderRegisterAdmin = () => (
         <div className="admin-form-container">
             <h3>Register New System User</h3>
-            <p>Create an account for Admin, Doctor, or Patient.</p>
+            <p>Create an account for Admin, Doctor, Patient, or Receptionist.</p>
             
             {adminFormMsg.text && (
                 <div className={`form-msg ${adminFormMsg.type}`}>
@@ -426,6 +469,7 @@ const AdminDashboard = () => {
                         <option value="Admin">Admin</option>
                         <option value="Doctor">Doctor</option>
                         <option value="Patient">Patient</option>
+                        <option value="Receptionist">Receptionist</option>
                     </select>
                 </div>
                 <div className="input-group">
@@ -450,18 +494,6 @@ const AdminDashboard = () => {
                 </div>
                 <button type="submit" className="btn-primary">Register User</button>
             </form>
-        </div>
-    );
-
-    const renderReports = () => (
-        <div className="admin-form-container">
-            <h3>Generate System Reports</h3>
-            <p>Download comprehensive reports for the channeling system.</p>
-            
-            <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
-                <button className="btn-primary" onClick={() => handleGenerateReport('pdf')}>Generate PDF Report</button>
-                <button className="btn-primary" onClick={() => handleGenerateReport('excel')}>Generate Excel Report</button>
-            </div>
         </div>
     );
 
@@ -501,9 +533,19 @@ const AdminDashboard = () => {
                     <li className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>
                         <i className="icon-reviews"></i> Manage Reviews
                     </li>
-                    <li className={activeTab === 'reports' ? 'active' : ''} onClick={() => setActiveTab('reports')}>
-                        <i className="icon-reports"></i> Reports
+                    <li className={activeTab.startsWith('report') ? 'active' : ''} onClick={() => setIsReportsOpen(!isReportsOpen)}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center'}}>
+                            <span><i className="icon-reports"></i> Reports</span>
+                            <span style={{fontSize: '12px'}}>{isReportsOpen ? '▼' : '▶'}</span>
+                        </div>
                     </li>
+                    {isReportsOpen && (
+                        <ul className="admin-submenu">
+                            <li className={activeTab === 'report-monthly' ? 'active' : ''} onClick={() => setActiveTab('report-monthly')}>Monthly Summary Report</li>
+                            <li className={activeTab === 'report-patient' ? 'active' : ''} onClick={() => setActiveTab('report-patient')}>Patient Demographics</li>
+                            <li className={activeTab === 'report-doctor' ? 'active' : ''} onClick={() => setActiveTab('report-doctor')}>Doctor Performance</li>
+                        </ul>
+                    )}
                     <li className={activeTab === 'registerAdmin' ? 'active' : ''} onClick={() => setActiveTab('registerAdmin')}>
                         <i className="icon-admin"></i> Register User
                     </li>
@@ -526,44 +568,13 @@ const AdminDashboard = () => {
                     {activeTab === 'patients' && renderPatients()}
                     {activeTab === 'appointments' && renderAppointments()}
                     {activeTab === 'reviews' && renderReviews()}
-                    {activeTab === 'reports' && renderReports()}
+                    {activeTab === 'report-monthly' && <ReportView title="Monthly Summary Report" category="monthly" />}
+                    {activeTab === 'report-patient' && <ReportView title="Patient Demographics Report" category="patient" />}
+                    {activeTab === 'report-doctor' && <ReportView title="Doctor Performance Report" category="doctor" />}
                     {activeTab === 'registerAdmin' && renderRegisterAdmin()}
                 </div>
             </main>
 
-            {/* Report Preview Modal */}
-            {previewModalOpen && reportPreview && (
-                <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.8)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}}>
-                    <div className="modal-content" style={{background: 'var(--admin-card)', border: '1px solid var(--admin-border)', borderRadius: '16px', width: '80%', maxWidth: '900px', height: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'}}>
-                        <div className="modal-header" style={{padding: '20px 24px', borderBottom: '1px solid var(--admin-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <h3 style={{margin: 0, color: 'var(--admin-text-primary)'}}>Report Preview ({reportPreview.type.toUpperCase()})</h3>
-                            <button className="close-btn" style={{background: 'transparent', border: 'none', color: 'var(--admin-text-secondary)', fontSize: '24px', cursor: 'pointer'}} onClick={() => setPreviewModalOpen(false)}>✕</button>
-                        </div>
-                        <div className="modal-body" style={{flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--admin-bg)'}}>
-                            {reportPreview.type === 'pdf' ? (
-                                <iframe 
-                                    src={reportPreview.url} 
-                                    style={{width: '100%', height: '100%', border: `1px solid var(--admin-border)`, borderRadius: '8px', background: 'white'}}
-                                    title="PDF Report Preview"
-                                />
-                            ) : (
-                                <div style={{textAlign: 'center', color: 'var(--admin-text-primary)'}}>
-                                    <i style={{fontSize: '64px', color: 'var(--admin-success)', marginBottom: '16px'}}>📊</i>
-                                    <h3>Excel Report Generated</h3>
-                                    <p>Preview is not available for Excel files in the browser.</p>
-                                    <p>Please click 'Download File' to view.</p>
-                                </div>
-                            )}
-                        </div>
-                        <div className="modal-footer" style={{padding: '20px 24px', borderTop: '1px solid var(--admin-border)', display: 'flex', justifyContent: 'flex-end', gap: '12px'}}>
-                            <button className="btn-secondary" style={{padding: '10px 20px', background: 'transparent', color: 'var(--admin-text-primary)', border: '1px solid var(--admin-border)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600}} onClick={() => setPreviewModalOpen(false)}>Close</button>
-                            <button className="btn-primary" onClick={handleDownloadPreview}>
-                                Download File
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
