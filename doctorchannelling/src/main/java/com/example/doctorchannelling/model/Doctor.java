@@ -3,6 +3,7 @@ package com.example.doctorchannelling.model;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -31,6 +32,7 @@ public class Doctor {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "DoctorID")
+    @JsonIgnore
     private User user;
 
     @NotBlank

@@ -27,6 +27,7 @@ public class ProfilePicture {
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "UserID", nullable = false, unique = true)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
     @NotBlank

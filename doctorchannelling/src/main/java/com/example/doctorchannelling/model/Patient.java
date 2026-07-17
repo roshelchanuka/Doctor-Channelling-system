@@ -22,6 +22,7 @@ public class Patient {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "PatientID")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
     @NotBlank

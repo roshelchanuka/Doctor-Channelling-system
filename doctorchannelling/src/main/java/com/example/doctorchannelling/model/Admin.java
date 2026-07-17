@@ -21,6 +21,7 @@ public class Admin {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "AdminID")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
     @NotBlank

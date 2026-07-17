@@ -55,6 +55,7 @@ public class DataSeeder implements CommandLineRunner {
         seedAdmin("admin@docChannel.com",   "Admin@123",   "System Admin",  "0771234567");
         seedDoctor("doctor@docChannel.com", "Doctor@123",  "Dr. John Silva", "Cardiology", new BigDecimal("2500.00"));
         seedPatient("patient@docChannel.com","Patient@123", "Kamal Perera",  "0712345678");
+        seedReceptionist("receptionist@docChannel.com", "Receptionist@123", "Nimali", "0711122334");
 
         System.out.println("\n====================================================");
         System.out.println("  TEST ACCOUNTS (Doctor Channelling System)");
@@ -64,6 +65,21 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("  PATIENT      : patient@docChannel.com / Patient@123");
         System.out.println("  RECEPTIONIST : receptionist@docChannel.com / Receptionist@123");
         System.out.println("====================================================\n");
+    }
+
+    private void seedReceptionist(String email, String rawPassword, String name, String contact) {
+        if (userRepository.findByEmailId(email).isPresent()) {
+            return;
+        }
+        User user = buildUser(email, rawPassword, "Receptionist");
+        userRepository.save(user);
+
+        Receptionist receptionist = new Receptionist();
+        receptionist.setUser(user);
+        receptionist.setReceptionistName(name);
+        receptionist.setContactNumber(contact);
+        receptionistRepository.save(receptionist);
+        System.out.println("[DataSeeder] Created Receptionist: " + email);
     }
 
     // ── Admin ──────────────────────────────────────────────────────────────────

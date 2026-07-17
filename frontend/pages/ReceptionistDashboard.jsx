@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ChatWindow from '../src/components/ChatWindow';
+import AppointmentsView from '../src/components/receptionist/AppointmentsView';
+import PatientsView from '../src/components/receptionist/PatientsView';
+import DoctorsView from '../src/components/receptionist/DoctorsView';
+import PaymentsView from '../src/components/receptionist/PaymentsView';
 import './ReceptionistDashboard.css';
 
 const ReportView = ({ title, category, token }) => {
@@ -88,14 +92,12 @@ const ReceptionistDashboard = () => {
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
     
-    // Authentication & Authorization handled in useEffect
     useEffect(() => {
         const role = localStorage.getItem('role');
         if (!token || !role || role.toUpperCase() !== 'RECEPTIONIST') {
             navigate('/login');
             return;
         }
-        
         fetchConversations();
     }, [navigate, token]);
 
@@ -122,10 +124,8 @@ const ReceptionistDashboard = () => {
 
     return (
         <div className="receptionist-dashboard-wrapper">
-            {/* Sidebar Toggle Overlay for Mobile */}
             {isSidebarOpen && <div className="receptionist-sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
             
-            {/* Sidebar */}
             <aside className={`receptionist-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="receptionist-brand">
                     <h2>Doc<span>Channel</span></h2>
@@ -133,7 +133,11 @@ const ReceptionistDashboard = () => {
                 </div>
                 <p style={{ margin: '0 20px 20px', fontSize: '0.85rem', color: 'var(--receptionist-text-secondary)' }}>Reception Desk</p>
                 <ul className="receptionist-nav">
-                    <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>Dashboard</li>
+                    <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>Live Chat</li>
+                    <li className={activeTab === 'appointments' ? 'active' : ''} onClick={() => setActiveTab('appointments')}>Appointments</li>
+                    <li className={activeTab === 'patients' ? 'active' : ''} onClick={() => setActiveTab('patients')}>Patients</li>
+                    <li className={activeTab === 'doctors' ? 'active' : ''} onClick={() => setActiveTab('doctors')}>Doctors</li>
+                    <li className={activeTab === 'payments' ? 'active' : ''} onClick={() => setActiveTab('payments')}>Payments</li>
                     <li className={activeTab.startsWith('report') ? 'active' : ''} onClick={() => setIsReportsOpen(!isReportsOpen)}>
                         <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center'}}>
                             <span>Reports</span>
@@ -152,12 +156,11 @@ const ReceptionistDashboard = () => {
                 </div>
             </aside>
 
-            {/* Main Content */}
             <main className="receptionist-main-content">
                 <header className="receptionist-header">
                     <div>
                         <h2>Welcome, Receptionist</h2>
-                        <p>Manage your chats and generate reports easily.</p>
+                        <p>Manage your daily clinic operations seamlessly.</p>
                     </div>
                     <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>☰</button>
                 </header>
@@ -165,7 +168,6 @@ const ReceptionistDashboard = () => {
                 <div className="receptionist-content-area">
                     {activeTab === 'dashboard' && (
                         <>
-                            {/* Conversations List */}
                             <div className="conversations-container">
                                 <h3>Active Inquiries</h3>
                                 <div className="conversations-list">
@@ -188,15 +190,9 @@ const ReceptionistDashboard = () => {
                                     )}
                                 </div>
                             </div>
-
-                            {/* Chat Area */}
                             <div className="chat-container">
                                 {selectedConversation ? (
-                                    <ChatWindow 
-                                        conversation={selectedConversation} 
-                                        receptionistId={userId} 
-                                        token={token} 
-                                    />
+                                    <ChatWindow conversation={selectedConversation} receptionistId={userId} token={token} />
                                 ) : (
                                     <div className="empty-chat-state">
                                         <div className="illustration">💬</div>
@@ -208,15 +204,15 @@ const ReceptionistDashboard = () => {
                         </>
                     )}
 
-                    {activeTab === 'report-patient' && (
-                        <ReportView title="Patient Demographics Report" category="patient" token={token} />
-                    )}
-                    {activeTab === 'report-doctor' && (
-                        <ReportView title="Doctor Performance Report" category="doctor" token={token} />
-                    )}
+                    {activeTab === 'appointments' && <AppointmentsView token={token} />}
+                    {activeTab === 'patients' && <PatientsView token={token} />}
+                    {activeTab === 'doctors' && <DoctorsView token={token} />}
+                    {activeTab === 'payments' && <PaymentsView token={token} receptionistId={userId} />}
+
+                    {activeTab === 'report-patient' && <ReportView title="Patient Demographics Report" category="patient" token={token} />}
+                    {activeTab === 'report-doctor' && <ReportView title="Doctor Performance Report" category="doctor" token={token} />}
                 </div>
             </main>
-
         </div>
     );
 };

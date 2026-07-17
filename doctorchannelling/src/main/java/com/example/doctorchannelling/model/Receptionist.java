@@ -25,6 +25,7 @@ public class Receptionist {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "ReceptionistID")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
     @NotBlank
