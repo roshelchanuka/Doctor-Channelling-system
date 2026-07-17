@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -18,11 +19,13 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtil {
 
     // The secret key must be at least 32 characters long. In a real application, this should be stored securely.
-    private final String SECRET_KEY = "your_super_secret_key_for_doctor_channelling_system_jwt";
+    @Value("${jwt.secret}")
+    private String secretKey;
+    
     private final long JWT_EXPIRATION_MS = 86400000; // 24 hours (in milliseconds)
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = SECRET_KEY.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

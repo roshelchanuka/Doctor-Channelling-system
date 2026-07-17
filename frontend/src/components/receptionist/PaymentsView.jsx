@@ -99,29 +99,43 @@ const PaymentsView = ({ token, receptionistId }) => {
             {/* Record Payment Form */}
             <div className="receptionist-form-container" style={{background: 'var(--receptionist-card)', padding: '24px', borderRadius: '16px', border: '1px solid var(--receptionist-border)'}}>
                 <h3 style={{ margin: '0 0 16px 0', color: 'var(--receptionist-text-primary)' }}>Record New Payment</h3>
-                <form onSubmit={handleRecordPayment} style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                <form onSubmit={handleRecordPayment} style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '1 1 250px' }}>
                         <label style={{ fontSize: '14px', color: 'var(--receptionist-text-secondary)' }}>Appointment ID</label>
                         <input 
                             type="number" 
                             value={appointmentId} 
                             onChange={(e) => setAppointmentId(e.target.value)} 
                             required 
-                            style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--receptionist-border)' }}
+                            style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--receptionist-border)', height: '40px', boxSizing: 'border-box', width: '100%', fontSize: '16px' }}
                         />
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '1 1 250px' }}>
                         <label style={{ fontSize: '14px', color: 'var(--receptionist-text-secondary)' }}>Payment Method</label>
-                        <select 
-                            value={paymentMethod} 
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                            style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--receptionist-border)' }}
-                        >
-                            <option value="Cash">Cash</option>
-                            <option value="Card">Card</option>
-                        </select>
+                        <div style={{ display: 'flex', gap: '24px', alignItems: 'center', height: '40px' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '16px' }}>
+                                <input 
+                                    type="radio" 
+                                    value="Cash" 
+                                    checked={paymentMethod === 'Cash'} 
+                                    onChange={(e) => setPaymentMethod(e.target.value)} 
+                                    style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                                />
+                                Cash
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '16px' }}>
+                                <input 
+                                    type="radio" 
+                                    value="Card" 
+                                    checked={paymentMethod === 'Card'} 
+                                    onChange={(e) => setPaymentMethod(e.target.value)} 
+                                    style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                                />
+                                Card
+                            </label>
+                        </div>
                     </div>
-                    <button type="submit" className="btn-primary" style={{ padding: '8px 24px', height: '40px' }}>Record Payment</button>
+                    <button type="submit" className="btn-primary" style={{ padding: '8px 24px', height: '40px', flex: '1 1 200px' }}>Record Payment</button>
                 </form>
                 <p style={{ fontSize: '12px', color: '#f59e0b', marginTop: '12px', margin: 0 }}>
                     * The payment amount is automatically fetched from the Doctor's consultation fee.
@@ -131,8 +145,8 @@ const PaymentsView = ({ token, receptionistId }) => {
             {/* Payments List */}
             <div className="receptionist-form-container" style={{background: 'var(--receptionist-card)', padding: '24px', borderRadius: '16px', border: '1px solid var(--receptionist-border)'}}>
                 <h3 style={{ margin: '0 0 16px 0', color: 'var(--receptionist-text-primary)' }}>Payment History</h3>
-                <div style={{overflowX: 'auto'}}>
-                    <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left'}}>
+                <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%'}}>
+                    <table style={{width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px'}}>
                         <thead>
                             <tr style={{borderBottom: '1px solid var(--receptionist-border)'}}>
                                 <th style={{padding: '12px'}}>Payment ID</th>
