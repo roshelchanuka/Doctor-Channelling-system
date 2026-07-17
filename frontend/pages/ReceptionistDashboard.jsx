@@ -6,6 +6,7 @@ import AppointmentsView from '../src/components/receptionist/AppointmentsView';
 import PatientsView from '../src/components/receptionist/PatientsView';
 import DoctorsView from '../src/components/receptionist/DoctorsView';
 import PaymentsView from '../src/components/receptionist/PaymentsView';
+import RegisterPatientView from '../src/components/receptionist/RegisterPatientView';
 import './ReceptionistDashboard.css';
 
 const ReportView = ({ title, category, token }) => {
@@ -103,7 +104,7 @@ const ReceptionistDashboard = () => {
 
     const fetchConversations = async () => {
         try {
-            const response = await axios.get(`http://localhost:8085/api/chat/conversations/${userId}`, {
+            const response = await axios.get(`http://localhost:8085/api/chat/conversations/receptionist/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setConversations(response.data);
@@ -136,6 +137,7 @@ const ReceptionistDashboard = () => {
                     <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>Live Chat</li>
                     <li className={activeTab === 'appointments' ? 'active' : ''} onClick={() => setActiveTab('appointments')}>Appointments</li>
                     <li className={activeTab === 'patients' ? 'active' : ''} onClick={() => setActiveTab('patients')}>Patients</li>
+                    <li className={activeTab === 'register-patient' ? 'active' : ''} onClick={() => setActiveTab('register-patient')}>Register Patient</li>
                     <li className={activeTab === 'doctors' ? 'active' : ''} onClick={() => setActiveTab('doctors')}>Doctors</li>
                     <li className={activeTab === 'payments' ? 'active' : ''} onClick={() => setActiveTab('payments')}>Payments</li>
                     <li className={activeTab.startsWith('report') ? 'active' : ''} onClick={() => setIsReportsOpen(!isReportsOpen)}>
@@ -206,6 +208,7 @@ const ReceptionistDashboard = () => {
 
                     {activeTab === 'appointments' && <AppointmentsView token={token} />}
                     {activeTab === 'patients' && <PatientsView token={token} />}
+                    {activeTab === 'register-patient' && <RegisterPatientView token={token} onSuccess={() => setActiveTab('patients')} />}
                     {activeTab === 'doctors' && <DoctorsView token={token} />}
                     {activeTab === 'payments' && <PaymentsView token={token} receptionistId={userId} />}
 

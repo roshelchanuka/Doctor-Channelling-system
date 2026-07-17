@@ -30,10 +30,6 @@ const PatientsView = ({ token }) => {
         <div className="receptionist-form-container" style={{background: 'var(--receptionist-card)', padding: '24px', borderRadius: '16px', border: '1px solid var(--receptionist-border)'}}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
                 <h3 style={{ margin: 0, color: 'var(--receptionist-text-primary)' }}>Patients Management</h3>
-                {/* For full registration, it's safer to use the standard register page and advise the receptionist to log out, or build a custom modal. For now, we guide them. */}
-                <button className="btn-primary" onClick={() => navigate('/register')} style={{padding: '8px 16px', fontSize: '14px', width: 'auto'}}>
-                    Register New Patient
-                </button>
             </div>
             
             <div style={{overflowX: 'auto'}}>

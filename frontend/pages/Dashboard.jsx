@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import NotificationBell from '../src/components/NotificationBell';
+import PatientChatView from '../src/components/patient/PatientChatView';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -214,6 +215,7 @@ const Dashboard = () => {
         { id: 'past', label: 'Past Appointments', icon: '📋' },
         { id: 'book', label: 'Book Appointment', icon: '➕' },
         { id: 'records', label: 'Medical Records', icon: '📝' },
+        { id: 'chat', label: 'Live Chat', icon: '💬' },
     ];
 
     // ─── HOME PAGE ───────────────────────────────────────────────────────────
@@ -784,6 +786,7 @@ const Dashboard = () => {
             case 'past': return renderPast();
             case 'book': return renderBook();
             case 'records': return renderRecords();
+            case 'chat': return <PatientChatView patientId={localStorage.getItem('userId')} token={localStorage.getItem('token')} />;
             default: return renderHome();
         }
     };
