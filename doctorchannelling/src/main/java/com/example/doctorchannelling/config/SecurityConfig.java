@@ -31,21 +31,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(org.springframework.security.config.Customizer.withDefaults()) // To enable CORS
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/error").permitAll() // Open for Login/Register and error pages
-                .requestMatchers(
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/ws/**"
-                ).permitAll() // Swagger and WebSocket URLs සඳහා සත්‍යාපනය අවශ්‍ය නොවේ
-                .anyRequest().authenticated() // Require authentication for all other requests
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // The session is not saved on the server.
-            );
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(org.springframework.security.config.Customizer.withDefaults()) // To enable CORS
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**", "/error").permitAll() // Open for Login/Register and error
+                                                                               // pages
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/ws/**")
+                        .permitAll() // Swagger and WebSocket URLs සඳහා සත්‍යාපනය අවශ්‍ය නොවේ
+                        .anyRequest().authenticated() // Require authentication for all other requests
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // The session is not saved on the
+                                                                                // server.
+                );
 
         // Add our custom JwtFilter to the Spring Security Filter Chain
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
