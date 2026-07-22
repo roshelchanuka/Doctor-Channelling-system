@@ -320,30 +320,51 @@ const DoctorDashboard = () => {
 
     return (
         <div className="doctor-dashboard-container animate-fade-in">
-            <header className="dashboard-header">
-                <h2>Doctor Dashboard</h2>
-                <div className="header-actions desktop-only-flex">
-                    <NotificationBell userId={userId} token={token} />
-                    <button onClick={handleLogout} className="logout-btn">Logout</button>
+            <header className="modern-navbar">
+                <div className="navbar-brand">
+                    <span className="brand-icon">⚕️</span>
+                    <h2>Doctor Portal</h2>
                 </div>
+
+                <div className="navbar-menu desktop-only-flex">
+                    <button className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
+                        <span className="nav-icon">👤</span> Profile
+                    </button>
+                    <button className={`nav-item ${activeTab === 'slots' ? 'active' : ''}`} onClick={() => setActiveTab('slots')}>
+                        <span className="nav-icon">📅</span> Manage Slots
+                    </button>
+                    <button className={`nav-item ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')}>
+                        <span className="nav-icon">🩺</span> Appointments
+                    </button>
+                    <button className={`nav-item ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>
+                        <span className="nav-icon">⭐</span> Reviews
+                    </button>
+                </div>
+
+                <div className="navbar-actions desktop-only-flex">
+                    <NotificationBell userId={userId} token={token} />
+                    <button onClick={handleLogout} className="logout-btn-modern">Logout</button>
+                </div>
+                
                 <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>☰</button>
             </header>
 
-            {isSidebarOpen && <div className="doctor-sidebar-overlay" onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(false); }}></div>}
+            {isSidebarOpen && <div className="doctor-sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
 
-            <div className={`tabs-container ${isSidebarOpen ? 'open' : ''}`}>
-                <div className="sidebar-brand-mobile">
+            <div className={`mobile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+                <div className="sidebar-header">
                     <h3>Menu</h3>
-                    <button className="close-sidebar-btn" onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(false); }}>✕</button>
+                    <button className="close-sidebar-btn" onClick={() => setIsSidebarOpen(false)}>✕</button>
                 </div>
-                <button className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => {setActiveTab('overview'); setIsSidebarOpen(false);}}>Overview</button>
-                <button className={`tab-btn ${activeTab === 'slots' ? 'active' : ''}`} onClick={() => {setActiveTab('slots'); setIsSidebarOpen(false);}}>Manage Slots</button>
-                <button className={`tab-btn ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => {setActiveTab('appointments'); setIsSidebarOpen(false);}}>Appointments</button>
-                <button className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => {setActiveTab('reviews'); setIsSidebarOpen(false);}}>Reviews</button>
-                
-                <div className="mobile-only" style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+                <div className="sidebar-links">
+                    <button className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => {setActiveTab('overview'); setIsSidebarOpen(false);}}>👤 Profile</button>
+                    <button className={`nav-item ${activeTab === 'slots' ? 'active' : ''}`} onClick={() => {setActiveTab('slots'); setIsSidebarOpen(false);}}>📅 Manage Slots</button>
+                    <button className={`nav-item ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => {setActiveTab('appointments'); setIsSidebarOpen(false);}}>🩺 Appointments</button>
+                    <button className={`nav-item ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => {setActiveTab('reviews'); setIsSidebarOpen(false);}}>⭐ Reviews</button>
+                </div>
+                <div className="sidebar-footer">
                     <NotificationBell userId={userId} token={token} />
-                    <button onClick={handleLogout} className="tab-btn" style={{ color: '#ef4444', width: '100%', textAlign: 'center' }}>Logout</button>
+                    <button onClick={handleLogout} className="logout-btn-modern mobile-logout">Logout</button>
                 </div>
             </div>
 
