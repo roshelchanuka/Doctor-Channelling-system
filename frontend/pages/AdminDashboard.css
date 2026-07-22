@@ -339,6 +339,7 @@
 .role-select {
     width: 100%;
     padding: 14px 16px;
+    box-sizing: border-box;
 }
 
 .status-select:focus, .role-select:focus {
@@ -373,8 +374,10 @@
   border: 1px solid var(--admin-border);
   border-radius: 16px;
   padding: 40px;
+  width: 100%;
   max-width: 500px;
   margin: 0 auto;
+  box-sizing: border-box;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.5s ease;
 }

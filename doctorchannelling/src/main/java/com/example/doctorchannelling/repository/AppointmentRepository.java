@@ -35,4 +35,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 
     @Query("SELECT a FROM Appointment a WHERE a.slot.slotId = :slotId ORDER BY a.queueNumber ASC")
     List<Appointment> findAppointmentsBySlotId(@Param("slotId") Integer slotId);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE " +
+           "(:startDate IS NULL OR a.appointmentDate >= :startDate) " +
+           "AND (:endDate IS NULL OR a.appointmentDate <= :endDate)")
+    long countAppointmentsByDateRange(@Param("startDate") java.time.LocalDate startDate, @Param("endDate") java.time.LocalDate endDate);
+
+    @Query("SELECT COUNT(DISTINCT a.patient.patientId) FROM Appointment a WHERE " +
+           "(:startDate IS NULL OR a.appointmentDate >= :startDate) " +
+           "AND (:endDate IS NULL OR a.appointmentDate <= :endDate)")
+    long countUniquePatientsByDateRange(@Param("startDate") java.time.LocalDate startDate, @Param("endDate") java.time.LocalDate endDate);
+
+    @Query("SELECT a.slot.doctor.doctorName, COUNT(a) as appCount FROM Appointment a WHERE " +
+           "(:startDate IS NULL OR a.appointmentDate >= :startDate) " +
+           "AND (:endDate IS NULL OR a.appointmentDate <= :endDate) " +
+           "GROUP BY a.slot.doctor.doctorId, a.slot.doctor.doctorName " +
+           "ORDER BY appCount DESC")
+    List<Object[]> findTopDoctorsByAppointmentCount(@Param("startDate") java.time.LocalDate startDate, @Param("endDate") java.time.LocalDate endDate, org.springframework.data.domain.Pageable pageable);
 }

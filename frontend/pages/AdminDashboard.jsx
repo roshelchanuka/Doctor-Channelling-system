@@ -7,33 +7,51 @@ import './AdminDashboard.css';
 const ReportView = ({ title, category }) => {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+
+    const fetchPreview = async () => {
+        setLoading(true);
+        try {
+            let urlParam = `http://localhost:8085/api/reports/${category}/pdf`;
+            const params = new URLSearchParams();
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+            
+            const queryString = params.toString();
+            if (queryString) urlParam += `?${queryString}`;
+
+            const response = await axios.get(urlParam, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            setPreviewUrl(url);
+        } catch (error) {
+            console.error("Error fetching preview:", error);
+        }
+        setLoading(false);
+    };
 
     useEffect(() => {
-        let url;
-        const fetchPreview = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`http://localhost:8085/api/reports/${category}/pdf`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                    responseType: 'blob'
-                });
-                url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-                setPreviewUrl(url);
-            } catch (error) {
-                console.error("Error fetching preview:", error);
-            }
-            setLoading(false);
-        };
         fetchPreview();
-
         return () => {
-            if (url) window.URL.revokeObjectURL(url);
+            if (previewUrl) window.URL.revokeObjectURL(previewUrl);
         };
-    }, [category]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [category]); // Fetch initially on category change
 
     const handleDownload = async (format) => {
         try {
-            const response = await axios.get(`http://localhost:8085/api/reports/${category}/${format}`, {
+            let urlParam = `http://localhost:8085/api/reports/${category}/${format}`;
+            const params = new URLSearchParams();
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+            
+            const queryString = params.toString();
+            if (queryString) urlParam += `?${queryString}`;
+
+            const response = await axios.get(urlParam, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                 responseType: 'blob'
             });
@@ -59,6 +77,18 @@ const ReportView = ({ title, category }) => {
                 <p>Preview and download the {title.toLowerCase()} for the channeling system.</p>
             </div>
             
+            <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap', background: '#f8fafc', padding: '15px', borderRadius: '8px', border: '1px solid var(--admin-border)', width: '100%', boxSizing: 'border-box' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 200px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Start Date:</label>
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 200px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 'bold' }}>End Date:</label>
+                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box' }} />
+                </div>
+                <button className="btn-primary" style={{ padding: '8px 16px', height: '37px', flex: '1 1 150px', whiteSpace: 'nowrap' }} onClick={fetchPreview}>Filter Report</button>
+            </div>
+
             <div className="report-preview-box" style={{ width: '100%', height: '500px', border: '1px solid var(--admin-border)', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
                 {loading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--admin-text-secondary)' }}>Loading preview...</div>
@@ -448,7 +478,7 @@ const AdminDashboard = () => {
     );
 
     const renderRegisterAdmin = () => (
-        <div className="admin-form-container">
+        <div className="admin-form-container" style={{ width: '100%', boxSizing: 'border-box', maxWidth: '100%' }}>
             <h3>Register New System User</h3>
             <p>Create an account for Admin, Doctor, Patient, or Receptionist.</p>
             
@@ -465,6 +495,7 @@ const AdminDashboard = () => {
                         value={adminForm.role} 
                         onChange={(e) => setAdminForm({ ...adminForm, role: e.target.value })}
                         className="role-select"
+                        style={{ width: '100%', boxSizing: 'border-box', maxWidth: '100%' }}
                     >
                         <option value="Admin">Admin</option>
                         <option value="Doctor">Doctor</option>
@@ -480,6 +511,7 @@ const AdminDashboard = () => {
                         onChange={(e) => setAdminForm({ ...adminForm, emailId: e.target.value })} 
                         required 
                         placeholder="user@system.com"
+                        style={{ width: '100%', boxSizing: 'border-box', maxWidth: '100%' }}
                     />
                 </div>
                 <div className="input-group">
@@ -490,6 +522,7 @@ const AdminDashboard = () => {
                         onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })} 
                         required 
                         placeholder="Enter secure password"
+                        style={{ width: '100%', boxSizing: 'border-box', maxWidth: '100%' }}
                     />
                 </div>
                 <button type="submit" className="btn-primary">Register User</button>

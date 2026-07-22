@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import com.example.doctorchannelling.repository.UserRepository;
  * Already exist කරන emails skip කරයි — safe to run multiple times.
  */
 @Component
+@Profile("!prod")
 public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;

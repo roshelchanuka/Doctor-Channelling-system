@@ -12,33 +12,51 @@ import './ReceptionistDashboard.css';
 const ReportView = ({ title, category, token }) => {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+
+    const fetchPreview = async () => {
+        setLoading(true);
+        try {
+            let urlParam = `http://localhost:8085/api/reports/${category}/pdf`;
+            const params = new URLSearchParams();
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+            
+            const queryString = params.toString();
+            if (queryString) urlParam += `?${queryString}`;
+
+            const response = await axios.get(urlParam, {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            setPreviewUrl(url);
+        } catch (error) {
+            console.error("Error fetching preview:", error);
+        }
+        setLoading(false);
+    };
 
     useEffect(() => {
-        let url;
-        const fetchPreview = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`http://localhost:8085/api/reports/${category}/pdf`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    responseType: 'blob'
-                });
-                url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-                setPreviewUrl(url);
-            } catch (error) {
-                console.error("Error fetching preview:", error);
-            }
-            setLoading(false);
-        };
         fetchPreview();
-
         return () => {
-            if (url) window.URL.revokeObjectURL(url);
+            if (previewUrl) window.URL.revokeObjectURL(previewUrl);
         };
-    }, [category, token]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [category, token]); // Fetch initially on category/token change
 
     const handleDownload = async (format) => {
         try {
-            const response = await axios.get(`http://localhost:8085/api/reports/${category}/${format}`, {
+            let urlParam = `http://localhost:8085/api/reports/${category}/${format}`;
+            const params = new URLSearchParams();
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+            
+            const queryString = params.toString();
+            if (queryString) urlParam += `?${queryString}`;
+
+            const response = await axios.get(urlParam, {
                 headers: { Authorization: `Bearer ${token}` },
                 responseType: 'blob'
             });
@@ -64,6 +82,18 @@ const ReportView = ({ title, category, token }) => {
                 <p style={{ margin: 0, color: 'var(--receptionist-text-secondary)' }}>Preview and download the {title.toLowerCase()} for the channeling system.</p>
             </div>
             
+            <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap', background: '#f8fafc', padding: '15px', borderRadius: '8px', border: '1px solid var(--receptionist-border)', width: '100%', boxSizing: 'border-box' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 200px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Start Date:</label>
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 200px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 'bold' }}>End Date:</label>
+                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box' }} />
+                </div>
+                <button className="btn-primary" style={{ padding: '8px 16px', height: '37px', flex: '1 1 150px', whiteSpace: 'nowrap' }} onClick={fetchPreview}>Filter Report</button>
+            </div>
+
             <div className="report-preview-box" style={{ width: '100%', height: '500px', border: '1px solid var(--receptionist-border)', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
                 {loading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--receptionist-text-secondary)' }}>Loading preview...</div>
