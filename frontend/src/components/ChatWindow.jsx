@@ -28,34 +28,34 @@ const ChatWindow = ({ conversation, receptionistId, token }) => {
             }
         };
 
+        let currentClient = null;
+
         if (conversation && conversation.conversationId) {
             fetchMessages();
-            connectWebSocket();
+            
+            const socket = new SockJS('http://localhost:8085/ws');
+            currentClient = Stomp.over(socket);
+            currentClient.debug = () => {}; // Disable debug logs
+            
+            currentClient.connect({}, () => {
+                currentClient.subscribe(`/topic/chat/${conversation.conversationId}`, (message) => {
+                    const receivedMsg = JSON.parse(message.body);
+                    setMessages(prev => [...prev, receivedMsg]);
+                });
+            });
+
+            setStompClient(currentClient);
         }
 
         // Cleanup on unmount or conversation change
         return () => {
-            if (stompClient) {
-                stompClient.disconnect();
+            if (currentClient) {
+                currentClient.disconnect();
             }
         };
-    }, [conversation]);
+    }, [conversation, token]);
 
-    const connectWebSocket = () => {
-        const socket = new SockJS('http://localhost:8085/ws');
-        const client = Stomp.over(socket);
-        client.debug = () => {}; // Disable debug logs
-        
-        client.connect({}, () => {
-            // Subscribe to this specific conversation
-            client.subscribe(`/topic/chat/${conversation.conversationId}`, (message) => {
-                const receivedMsg = JSON.parse(message.body);
-                setMessages(prev => [...prev, receivedMsg]);
-            });
-        });
 
-        setStompClient(client);
-    };
 
     const sendMessage = () => {
         if (!messageInput.trim() || !stompClient) return;

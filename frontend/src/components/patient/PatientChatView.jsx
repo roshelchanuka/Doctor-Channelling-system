@@ -17,7 +17,8 @@ const PatientChatView = ({ patientId, token }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    useEffect(() => {
+        let currentClient = null;
+
         const fetchConversationAndMessages = async () => {
             try {
                 // 1. Get or Create conversation for this patient
@@ -34,7 +35,18 @@ const PatientChatView = ({ patientId, token }) => {
                 setMessages(msgRes.data);
                 
                 // 3. Connect WebSocket
-                connectWebSocket(currentConv.conversationId);
+                const socket = new SockJS('http://localhost:8085/ws');
+                currentClient = Stomp.over(socket);
+                currentClient.debug = () => {}; 
+                
+                currentClient.connect({}, () => {
+                    currentClient.subscribe(`/topic/chat/${currentConv.conversationId}`, (message) => {
+                        const receivedMsg = JSON.parse(message.body);
+                        setMessages(prev => [...prev, receivedMsg]);
+                    });
+                });
+
+                setStompClient(currentClient);
             } catch (err) {
                 console.error("Error setting up chat:", err);
                 setError("Failed to connect to chat server.");
@@ -48,26 +60,11 @@ const PatientChatView = ({ patientId, token }) => {
         }
 
         return () => {
-            if (stompClient) {
-                stompClient.disconnect();
+            if (currentClient) {
+                currentClient.disconnect();
             }
         };
     }, [patientId, token]);
-
-    const connectWebSocket = (conversationId) => {
-        const socket = new SockJS('http://localhost:8085/ws');
-        const client = Stomp.over(socket);
-        client.debug = () => {}; 
-        
-        client.connect({}, () => {
-            client.subscribe(`/topic/chat/${conversationId}`, (message) => {
-                const receivedMsg = JSON.parse(message.body);
-                setMessages(prev => [...prev, receivedMsg]);
-            });
-        });
-
-        setStompClient(client);
-    };
 
     const sendMessage = () => {
         if (!messageInput.trim() || !stompClient || !conversation) return;
