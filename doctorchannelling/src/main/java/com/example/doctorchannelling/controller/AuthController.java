@@ -8,13 +8,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.doctorchannelling.model.User;
 import com.example.doctorchannelling.service.AuthService;
+import com.example.doctorchannelling.repository.TokenBlacklistRepository;
+import com.example.doctorchannelling.model.TokenBlacklist;
+import com.example.doctorchannelling.util.JwtUtil;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.time.ZoneId;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
-    public AuthController(AuthService authService) {
+    private final TokenBlacklistRepository tokenBlacklistRepository;
+    private final JwtUtil jwtUtil;
+    
+    public AuthController(AuthService authService, TokenBlacklistRepository tokenBlacklistRepository, JwtUtil jwtUtil) {
         this.authService = authService;
+        this.tokenBlacklistRepository = tokenBlacklistRepository;
+        this.jwtUtil = jwtUtil;
     }
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody User user) {
@@ -72,5 +84,23 @@ public class AuthController {
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.badRequest().body(response);
+    }
+    
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String jwt = authorizationHeader.substring(7);
+            try {
+                Date expiration = jwtUtil.extractExpiration(jwt);
+                LocalDateTime expiryDate = LocalDateTime.ofInstant(expiration.toInstant(), ZoneId.systemDefault());
+                TokenBlacklist blacklistedToken = new TokenBlacklist(jwt, expiryDate);
+                tokenBlacklistRepository.save(blacklistedToken);
+                return ResponseEntity.ok("Logged out successfully");
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Invalid token");
+            }
+        }
+        return ResponseEntity.badRequest().body("No token provided");
     }
 }

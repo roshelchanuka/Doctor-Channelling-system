@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.example.doctorchannelling.model.Patient;
 import com.example.doctorchannelling.model.User;
@@ -12,6 +13,7 @@ import com.example.doctorchannelling.repository.PatientRepository;
 import com.example.doctorchannelling.repository.UserRepository;
 
 @SpringBootApplication
+@EnableScheduling
 public class DoctorchannellingApplication {
 
 	public static void main(String[] args) {

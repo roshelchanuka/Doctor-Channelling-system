@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,10 +37,12 @@ public class DoctorSlot {
     private LocalDate availableDate;
 
     @NotNull
+    @JsonFormat(pattern = "HH:mm:ss")
     @Column(name = "StartTime", nullable = false)
     private LocalTime startTime;
 
     @NotNull
+    @JsonFormat(pattern = "HH:mm:ss")
     @Column(name = "EndTime", nullable = false)
     private LocalTime endTime;
 

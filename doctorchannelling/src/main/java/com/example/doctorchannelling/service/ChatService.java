@@ -6,6 +6,9 @@ import com.example.doctorchannelling.model.ChatConversation;
 import com.example.doctorchannelling.model.ChatMessage;
 import com.example.doctorchannelling.repository.ChatConversationRepository;
 import com.example.doctorchannelling.repository.ChatMessageRepository;
+import com.example.doctorchannelling.repository.UserRepository;
+import com.example.doctorchannelling.model.User;
+import com.example.doctorchannelling.dto.ChatMessageDTO;
 import java.util.List;
 
 @Service
@@ -22,6 +25,9 @@ public class ChatService {
     @Autowired
     private com.example.doctorchannelling.repository.ReceptionistRepository receptionistRepo;
 
+    @Autowired
+    private UserRepository userRepo;
+
     public ChatMessage saveMessage(ChatMessage message) {
         if (message.getConversation() != null && message.getConversation().getConversationId() != null) {
             ChatConversation conv = conversationRepo.findById(message.getConversation().getConversationId()).orElse(null);
@@ -31,6 +37,31 @@ public class ChatService {
             }
         }
         return messageRepo.save(message);
+    }
+
+    public ChatMessage saveMessageFromDTO(ChatMessageDTO dto) {
+        ChatMessage message = new ChatMessage();
+        
+        ChatConversation conv = conversationRepo.findById(dto.getConversationId())
+                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+        message.setConversation(conv);
+        
+        User sender = userRepo.findById(dto.getSenderId())
+                .orElseThrow(() -> new RuntimeException("Sender not found"));
+        message.setSender(sender);
+        
+        message.setMessageText(dto.getMessageContent());
+        message.setSentAt(java.time.LocalDateTime.now());
+        message.setMessageType("TEXT");
+        message.setRead(false);
+        message.setDeleted(false);
+        
+        ChatMessage saved = messageRepo.save(message);
+        
+        conv.setLastMessageAt(saved.getSentAt());
+        conversationRepo.save(conv);
+        
+        return saved;
     }
 
     public List<ChatMessage> getConversationMessages(Integer conversationId) {
