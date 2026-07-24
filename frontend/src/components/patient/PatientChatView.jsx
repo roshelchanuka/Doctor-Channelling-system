@@ -17,6 +17,7 @@ const PatientChatView = ({ patientId, token }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
+    useEffect(() => {
         let currentClient = null;
 
         const fetchConversationAndMessages = async () => {

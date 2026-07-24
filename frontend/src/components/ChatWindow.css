@@ -78,14 +78,14 @@
 }
 
 .message-bubble.theirs .bubble-content {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
+    background: #f1f5f9;
+    color: #0f172a;
     border-bottom-left-radius: 4px;
 }
 
 .message-bubble.mine .bubble-content {
-    background: var(--primary-gradient);
-    color: white;
+    background: var(--primary-gradient, #4338ca);
+    color: #ffffff;
     border-bottom-right-radius: 4px;
 }
 
