@@ -28,12 +28,12 @@ public class Appointment {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "PatientID", nullable = false)
-    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "SlotID", nullable = false)
-    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private DoctorSlot slot;
 
     @NotNull
@@ -68,22 +68,75 @@ public class Appointment {
         }
     }
 
-    public Integer getAppointmentId() { return appointmentId; }
-    public void setAppointmentId(Integer appointmentId) { this.appointmentId = appointmentId; }
-    public Patient getPatient() { return patient; }
-    public void setPatient(Patient patient) { this.patient = patient; }
-    public DoctorSlot getSlot() { return slot; }
-    public void setSlot(DoctorSlot slot) { this.slot = slot; }
-    public LocalDate getAppointmentDate() { return appointmentDate; }
-    public void setAppointmentDate(LocalDate appointmentDate) { this.appointmentDate = appointmentDate; }
-    public LocalTime getBookingTime() { return bookingTime; }
-    public void setBookingTime(LocalTime bookingTime) { this.bookingTime = bookingTime; }
-    public Integer getQueueNumber() { return queueNumber; }
-    public void setQueueNumber(Integer queueNumber) { this.queueNumber = queueNumber; }
-    public String getAppointmentStatus() { return appointmentStatus; }
-    public void setAppointmentStatus(String appointmentStatus) { this.appointmentStatus = appointmentStatus; }
-    public boolean isReminderSent() { return isReminderSent; }
-    public void setReminderSent(boolean reminderSent) { isReminderSent = reminderSent; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public Integer getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(Integer appointmentId) {
+        this.appointmentId = appointmentId;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
+
+    public DoctorSlot getSlot() {
+        return slot;
+    }
+
+    public void setSlot(DoctorSlot slot) {
+        this.slot = slot;
+    }
+
+    public LocalDate getAppointmentDate() {
+        return appointmentDate;
+    }
+
+    public void setAppointmentDate(LocalDate appointmentDate) {
+        this.appointmentDate = appointmentDate;
+    }
+
+    public LocalTime getBookingTime() {
+        return bookingTime;
+    }
+
+    public void setBookingTime(LocalTime bookingTime) {
+        this.bookingTime = bookingTime;
+    }
+
+    public Integer getQueueNumber() {
+        return queueNumber;
+    }
+
+    public void setQueueNumber(Integer queueNumber) {
+        this.queueNumber = queueNumber;
+    }
+
+    public String getAppointmentStatus() {
+        return appointmentStatus;
+    }
+
+    public void setAppointmentStatus(String appointmentStatus) {
+        this.appointmentStatus = appointmentStatus;
+    }
+
+    public boolean isReminderSent() {
+        return isReminderSent;
+    }
+
+    public void setReminderSent(boolean reminderSent) {
+        isReminderSent = reminderSent;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
