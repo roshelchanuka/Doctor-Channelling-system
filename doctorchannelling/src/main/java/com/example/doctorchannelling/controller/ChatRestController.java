@@ -42,6 +42,16 @@ public class ChatRestController {
         return ResponseEntity.ok(dtos);
     }
 
+    @PutMapping("/conversations/{conversationId}/close")
+    public ResponseEntity<?> closeConversation(@PathVariable Integer conversationId) {
+        try {
+            chatService.closeConversation(conversationId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to close conversation");
+        }
+    }
+
     private ChatConversationDTO convertToConversationDTO(ChatConversation conv) {
         ChatConversationDTO dto = new ChatConversationDTO();
         dto.setConversationId(conv.getConversationId());

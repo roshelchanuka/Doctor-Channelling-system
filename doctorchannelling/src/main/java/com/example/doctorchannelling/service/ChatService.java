@@ -100,4 +100,12 @@ public class ChatService {
 
         return conversationRepo.save(newConv);
     }
+
+    public void closeConversation(Integer conversationId) {
+        ChatConversation conv = conversationRepo.findById(conversationId)
+                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+        conv.setStatus("CLOSED");
+        conv.setClosedAt(java.time.LocalDateTime.now());
+        conversationRepo.save(conv);
+    }
 }

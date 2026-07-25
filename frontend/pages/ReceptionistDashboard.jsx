@@ -148,6 +148,25 @@ const ReceptionistDashboard = () => {
         }
     };
 
+    const handleCloseConversation = async (conversationId, e) => {
+        e.stopPropagation();
+        try {
+            await axios.put(`http://localhost:8085/api/chat/conversations/${conversationId}/close`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            fetchConversations();
+            if (selectedConversation && selectedConversation.conversationId === conversationId) {
+                setSelectedConversation(null);
+            }
+        } catch (error) {
+            console.error("Error closing conversation:", error);
+            setConversations(prev => prev.filter(c => c.conversationId !== conversationId));
+            if (selectedConversation && selectedConversation.conversationId === conversationId) {
+                setSelectedConversation(null);
+            }
+        }
+    };
+
     const handleLogout = () => {
         localStorage.clear();
         navigate('/login');
@@ -213,9 +232,17 @@ const ReceptionistDashboard = () => {
                                                 onClick={() => setSelectedConversation(conv)}
                                             >
                                                 <div className="avatar">{conv.patientName ? conv.patientName.charAt(0) : 'P'}</div>
-                                                <div className="conv-details">
-                                                    <h4>{conv.patientName || `Patient #${conv.patientId}`}</h4>
-                                                    <span className="badge-open">Open</span>
+                                                <div className="conv-details" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                                    <div>
+                                                        <h4>{conv.patientName || `Patient #${conv.patientId}`}</h4>
+                                                        <span className="badge-open">Open</span>
+                                                        <button 
+                                                            onClick={(e) => handleCloseConversation(conv.conversationId, e)}
+                                                            style={{ marginLeft: '10px', background: 'var(--receptionist-error, #ff4d4f)', color: 'white', border: 'none', borderRadius: '4px', padding: '2px 8px', fontSize: '12px', cursor: 'pointer' }}
+                                                        >
+                                                            Close
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))
