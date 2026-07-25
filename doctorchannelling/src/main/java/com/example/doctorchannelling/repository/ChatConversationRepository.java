@@ -9,4 +9,5 @@ import java.util.List;
 public interface ChatConversationRepository extends JpaRepository<ChatConversation, Integer> {
     List<ChatConversation> findByPatientPatientId(Integer patientId);
     List<ChatConversation> findByReceptionistReceptionistId(Integer receptionistId);
+    List<ChatConversation> findByReceptionistReceptionistIdAndStatus(Integer receptionistId, String status);
 }

@@ -75,7 +75,10 @@ public class ChatMessage {
     @SuppressWarnings("unused")
     void prePersist() {
         if (sentAt == null) {
-            sentAt = LocalDateTime.now();
+            sentAt = LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS);
+        }
+        if (senderName == null && sender != null) {
+            senderName = sender.getEmailId() != null ? sender.getEmailId() : "User";
         }
     }
 

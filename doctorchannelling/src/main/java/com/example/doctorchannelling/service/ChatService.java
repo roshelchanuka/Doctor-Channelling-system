@@ -32,7 +32,7 @@ public class ChatService {
         if (message.getConversation() != null && message.getConversation().getConversationId() != null) {
             ChatConversation conv = conversationRepo.findById(message.getConversation().getConversationId()).orElse(null);
             if (conv != null) {
-                conv.setLastMessageAt(java.time.LocalDateTime.now());
+                conv.setLastMessageAt(java.time.LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS));
                 conversationRepo.save(conv);
             }
         }
@@ -54,7 +54,7 @@ public class ChatService {
         message.setSenderName(sender.getEmailId() != null ? sender.getEmailId() : "User");
         
         message.setMessageText(dto.getMessageContent());
-        message.setSentAt(java.time.LocalDateTime.now());
+        message.setSentAt(java.time.LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS));
         message.setMessageType("TEXT");
         message.setRead(false);
         message.setDeleted(false);
@@ -72,7 +72,7 @@ public class ChatService {
     }
 
     public List<ChatConversation> getConversationsForReceptionist(Integer receptionistId) {
-        return conversationRepo.findByReceptionistReceptionistId(receptionistId);
+        return conversationRepo.findByReceptionistReceptionistIdAndStatus(receptionistId, "OPEN");
     }
 
     public ChatConversation getOrCreateConversationForPatient(Integer patientId) {
@@ -99,7 +99,7 @@ public class ChatService {
         newConv.setPatient(patient);
         newConv.setReceptionist(receptionist);
         newConv.setStatus("OPEN");
-        newConv.setStartedAt(java.time.LocalDateTime.now());
+        newConv.setStartedAt(java.time.LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS));
 
         return conversationRepo.save(newConv);
     }
@@ -108,7 +108,7 @@ public class ChatService {
         ChatConversation conv = conversationRepo.findById(conversationId)
                 .orElseThrow(() -> new RuntimeException("Conversation not found"));
         conv.setStatus("CLOSED");
-        conv.setClosedAt(java.time.LocalDateTime.now());
+        conv.setClosedAt(java.time.LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS));
         conversationRepo.save(conv);
     }
 }
