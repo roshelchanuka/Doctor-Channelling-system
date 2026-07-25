@@ -57,7 +57,13 @@ public class PatientController {
         }
     }
     @GetMapping
-    public ResponseEntity<java.util.List<Patient>> getAllPatients() {
+    public ResponseEntity<java.util.List<Patient>> getAllPatients(
+            @org.springframework.web.bind.annotation.RequestParam(name = "date", required = false) 
+            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) 
+            java.time.LocalDate date) {
+        if (date != null) {
+            return ResponseEntity.ok(patientService.getPatientsByDate(date));
+        }
         return ResponseEntity.ok(patientService.getAllPatients());
     }
 }

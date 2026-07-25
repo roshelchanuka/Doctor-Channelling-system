@@ -112,4 +112,11 @@ public class PatientService {
     public List<Patient> getAllPatients() {
         return patientRepository.findAll();
     }
+
+    public List<Patient> getPatientsByDate(java.time.LocalDate date) {
+        if (date == null) {
+            return patientRepository.findAll();
+        }
+        return appointmentRepository.findDistinctPatientsByAppointmentDate(date);
+    }
 }

@@ -5,11 +5,7 @@ const DoctorsView = ({ token }) => {
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchDoctors();
-    }, []);
-
-    const fetchDoctors = async () => {
+    async function fetchDoctors() {
         try {
             const response = await axios.get('http://localhost:8085/api/doctors', {
                 headers: { Authorization: `Bearer ${token}` }
@@ -20,7 +16,12 @@ const DoctorsView = ({ token }) => {
             console.error("Error fetching doctors:", error);
             setLoading(false);
         }
-    };
+    }
+
+    useEffect(() => {
+        fetchDoctors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     if (loading) return <div>Loading doctors...</div>;
 

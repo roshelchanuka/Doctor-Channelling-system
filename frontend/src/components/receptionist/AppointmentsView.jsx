@@ -5,11 +5,7 @@ const AppointmentsView = ({ token }) => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchAppointments();
-    }, []);
-
-    const fetchAppointments = async () => {
+    async function fetchAppointments() {
         try {
             const response = await axios.get('http://localhost:8085/api/appointments', {
                 headers: { Authorization: `Bearer ${token}` }
@@ -20,7 +16,12 @@ const AppointmentsView = ({ token }) => {
             console.error("Error fetching appointments:", error);
             setLoading(false);
         }
-    };
+    }
+
+    useEffect(() => {
+        fetchAppointments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleStatusChange = async (appointmentId, newStatus) => {
         try {

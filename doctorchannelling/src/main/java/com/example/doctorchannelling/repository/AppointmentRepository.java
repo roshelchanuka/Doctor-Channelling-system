@@ -52,4 +52,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
            "GROUP BY a.slot.doctor.doctorId, a.slot.doctor.doctorName " +
            "ORDER BY appCount DESC")
     List<Object[]> findTopDoctorsByAppointmentCount(@Param("startDate") java.time.LocalDate startDate, @Param("endDate") java.time.LocalDate endDate, org.springframework.data.domain.Pageable pageable);
+
+    @Query("SELECT DISTINCT a.patient FROM Appointment a WHERE a.appointmentDate = :date")
+    List<com.example.doctorchannelling.model.Patient> findDistinctPatientsByAppointmentDate(@Param("date") java.time.LocalDate date);
 }

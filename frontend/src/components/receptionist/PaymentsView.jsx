@@ -9,11 +9,7 @@ const PaymentsView = ({ token, receptionistId }) => {
     const [appointmentId, setAppointmentId] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('Cash');
 
-    useEffect(() => {
-        fetchPayments();
-    }, []);
-
-    const fetchPayments = async () => {
+    async function fetchPayments() {
         try {
             const response = await axios.get('http://localhost:8085/api/payments', {
                 headers: { Authorization: `Bearer ${token}` }
@@ -24,7 +20,12 @@ const PaymentsView = ({ token, receptionistId }) => {
             console.error("Error fetching payments:", error);
             setLoading(false);
         }
-    };
+    }
+
+    useEffect(() => {
+        fetchPayments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleRecordPayment = async (e) => {
         e.preventDefault();
