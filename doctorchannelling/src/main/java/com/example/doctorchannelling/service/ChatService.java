@@ -50,9 +50,6 @@ public class ChatService {
                 .orElseThrow(() -> new RuntimeException("Sender not found"));
         message.setSender(sender);
         
-        // Use email or a generic name as fallback since User table doesn't have Name
-        message.setSenderName(sender.getEmailId() != null ? sender.getEmailId() : "User");
-        
         message.setMessageText(dto.getMessageContent());
         message.setSentAt(java.time.LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS));
         message.setMessageType("TEXT");

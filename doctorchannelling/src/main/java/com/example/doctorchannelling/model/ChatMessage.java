@@ -32,10 +32,6 @@ public class ChatMessage {
     private User sender;
 
     @NotBlank
-    @Column(name = "SenderName", nullable = false, length = 200)
-    private String senderName;
-
-    @NotBlank
     @Column(name = "MessageType", nullable = false, length = 10)
     private String messageType = "TEXT";
 
@@ -58,27 +54,11 @@ public class ChatMessage {
     @Column(name = "IsDeleted", nullable = false)
     private boolean isDeleted = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ReplyByID")
-    private User replyBy;
-
-    @Column(name = "ReplyByName", length = 200)
-    private String replyByName;
-
-    @Column(name = "ReplyText", columnDefinition = "NVARCHAR(MAX)")
-    private String replyText;
-
-    @Column(name = "ReplyAt")
-    private LocalDateTime replyAt;
-
     @PrePersist
     @SuppressWarnings("unused")
     void prePersist() {
         if (sentAt == null) {
             sentAt = LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS);
-        }
-        if (senderName == null && sender != null) {
-            senderName = sender.getEmailId() != null ? sender.getEmailId() : "User";
         }
     }
 
@@ -91,9 +71,6 @@ public class ChatMessage {
 
     public User getSender() { return sender; }
     public void setSender(User sender) { this.sender = sender; }
-
-    public String getSenderName() { return senderName; }
-    public void setSenderName(String senderName) { this.senderName = senderName; }
 
     public String getMessageType() { return messageType; }
     public void setMessageType(String messageType) { this.messageType = messageType; }
@@ -114,17 +91,5 @@ public class ChatMessage {
     public void setReadAt(LocalDateTime readAt) { this.readAt = readAt; }
 
     public boolean isDeleted() { return isDeleted; }
-    public void setDeleted(boolean deleted) { isDeleted = deleted; }
-
-    public User getReplyBy() { return replyBy; }
-    public void setReplyBy(User replyBy) { this.replyBy = replyBy; }
-
-    public String getReplyByName() { return replyByName; }
-    public void setReplyByName(String replyByName) { this.replyByName = replyByName; }
-
-    public String getReplyText() { return replyText; }
-    public void setReplyText(String replyText) { this.replyText = replyText; }
-
-    public LocalDateTime getReplyAt() { return replyAt; }
-    public void setReplyAt(LocalDateTime replyAt) { this.replyAt = replyAt; }
+    public void setDeleted(boolean deleted) { this.isDeleted = deleted; }
 }
