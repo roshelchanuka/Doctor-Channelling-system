@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,5 +66,25 @@ public class PaymentService {
 
     public List<Payment> getPaymentsByAppointment(Integer appointmentId) {
         return paymentRepository.findByAppointment_AppointmentId(appointmentId);
+    }
+
+    public List<Map<String, Object>> getPendingBills() {
+        List<Appointment> unpaidAppointments = appointmentRepository.findUnpaidAppointments();
+        List<Map<String, Object>> pendingBills = new ArrayList<>();
+        
+        for (Appointment app : unpaidAppointments) {
+            Map<String, Object> billData = new HashMap<>();
+            billData.put("appointmentId", app.getAppointmentId());
+            billData.put("patientName", app.getPatient().getPatientName());
+            billData.put("patientMobile", app.getPatient().getMobileNumber());
+            billData.put("doctorName", app.getSlot().getDoctor().getDoctorName());
+            billData.put("appointmentDate", app.getAppointmentDate());
+            billData.put("appointmentTime", app.getSlot().getStartTime());
+            billData.put("queueNumber", app.getQueueNumber());
+            billData.put("consultationFee", app.getSlot().getDoctor().getConsultationFee());
+            pendingBills.add(billData);
+        }
+        
+        return pendingBills;
     }
 }

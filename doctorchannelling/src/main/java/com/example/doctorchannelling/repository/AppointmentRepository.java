@@ -55,4 +55,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 
     @Query("SELECT DISTINCT a.patient FROM Appointment a WHERE a.appointmentDate = :date")
     List<com.example.doctorchannelling.model.Patient> findDistinctPatientsByAppointmentDate(@Param("date") java.time.LocalDate date);
+
+    @Query("SELECT a FROM Appointment a WHERE NOT EXISTS (SELECT p FROM Payment p WHERE p.appointment = a AND p.paymentStatus = 'Completed') ORDER BY a.appointmentDate ASC, a.slot.startTime ASC")
+    List<Appointment> findUnpaidAppointments();
 }

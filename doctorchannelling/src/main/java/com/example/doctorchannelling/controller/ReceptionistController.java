@@ -11,13 +11,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.doctorchannelling.model.Receptionist;
 import com.example.doctorchannelling.service.ReceptionistService;
+import com.example.doctorchannelling.service.WalkInBookingService;
 import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/receptionists")
 public class ReceptionistController {
     private final ReceptionistService receptionistService;
-    public ReceptionistController(ReceptionistService receptionistService) {
+    private final WalkInBookingService walkInBookingService;
+    
+    public ReceptionistController(ReceptionistService receptionistService, WalkInBookingService walkInBookingService) {
         this.receptionistService = receptionistService;
+        this.walkInBookingService = walkInBookingService;
     }
     // 1. Profile completion (e.g. /api/receptionists/5/profile)
     @PostMapping("/{userId}/profile")
@@ -35,5 +40,16 @@ public class ReceptionistController {
         Optional<Receptionist> receptionist = receptionistService.getProfileDetails(receptionistId);
         return receptionist.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // 3. Walk-in Booking & Payment Endpoint
+    @PostMapping("/walkin-book")
+    public ResponseEntity<?> processWalkInBooking(@RequestBody Map<String, Object> request) {
+        try {
+            Map<String, Object> result = walkInBookingService.processWalkInBooking(request);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

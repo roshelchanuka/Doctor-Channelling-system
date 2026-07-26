@@ -36,11 +36,11 @@ const Login = ({ toggleForm }) => {
                 throw new Error(data.message || 'Login failed!');
             }
 
-            // JWT Token එක localStorage එකේ save කිරීම
+            // Saving the JWT Token in localStorage
             localStorage.setItem('token', data.token);
             alert('Login Successful!');
             
-            // මීළඟට Dashboard එකට redirect කිරීම මෙතනින් කළ හැක (e.g., useNavigate)
+            // You can then redirect to the Dashboard here (e.g., useNavigate)
 
         } catch (err) {
             setError(err.message);
