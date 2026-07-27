@@ -22,7 +22,7 @@ public class DoctorSlotService {
     }
 
     public List<DoctorSlot> getSlotsByDoctor(Integer doctorId) {
-        return doctorSlotRepository.findByDoctorDoctorId(doctorId);
+        return doctorSlotRepository.findByDoctorDoctorIdAndIsExpiredFalse(doctorId);
     }
 
     public DoctorSlot addSlot(Integer doctorId, DoctorSlot slot) {

@@ -36,6 +36,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
     @Query("SELECT a FROM Appointment a WHERE a.slot.slotId = :slotId ORDER BY a.queueNumber ASC")
     List<Appointment> findAppointmentsBySlotId(@Param("slotId") Integer slotId);
 
+    List<Appointment> findBySlotSlotIdAndAppointmentStatus(Integer slotId, String appointmentStatus);
+
     @Query("SELECT COUNT(a) FROM Appointment a WHERE " +
            "(:startDate IS NULL OR a.appointmentDate >= :startDate) " +
            "AND (:endDate IS NULL OR a.appointmentDate <= :endDate)")
