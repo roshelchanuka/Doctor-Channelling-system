@@ -22,7 +22,7 @@ public class ChatRestController {
     public ResponseEntity<List<ChatConversationDTO>> getConversationsForReceptionist(@PathVariable Integer receptionistId) {
         List<ChatConversation> convs = chatService.getConversationsForReceptionist(receptionistId);
         List<ChatConversationDTO> dtos = convs.stream().map(this::convertToConversationDTO).collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(dtos); 
     }
 
     @GetMapping("/conversations/patient/{patientId}")
