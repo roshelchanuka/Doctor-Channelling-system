@@ -49,13 +49,6 @@ const PaymentsView = ({ token, receptionistId }) => {
         }
     };
 
-    useEffect(() => {
-        fetchData();
-        // Also fetch initial list of all doctors for Walk-In tab
-        fetchDoctors('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     // --- Walk-In Booking Logic ---
     const fetchDoctors = async (spec) => {
         try {
@@ -67,6 +60,13 @@ const PaymentsView = ({ token, receptionistId }) => {
             console.error("Error fetching doctors:", err);
         }
     };
+
+    useEffect(() => {
+        fetchData();
+        // Also fetch initial list of all doctors for Walk-In tab
+        fetchDoctors('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleSpecializationChange = (e) => {
         const val = e.target.value;
