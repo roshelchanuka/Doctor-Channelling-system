@@ -17,12 +17,14 @@ public class AuthService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final com.example.doctorchannelling.util.JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthService(UserRepository userRepository, EmailService emailService, com.example.doctorchannelling.util.JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, EmailService emailService, com.example.doctorchannelling.util.JwtUtil jwtUtil, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
@@ -110,7 +112,8 @@ public class AuthService {
             userRepository.save(user);
 
             String token = jwtUtil.generateToken(user.getEmailId(), user.getRole());
-            return "{\"token\": \"" + token + "\", \"userId\": " + user.getUserId() + ", \"role\": \"" + user.getRole() + "\"}";
+            com.example.doctorchannelling.model.RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getUserId());
+            return "{\"token\": \"" + token + "\", \"refreshToken\": \"" + refreshToken.getToken() + "\", \"userId\": " + user.getUserId() + ", \"role\": \"" + user.getRole() + "\"}";
         } else {
             int attempts = (user.getFailedLoginAttempts() == null) ? 0 : user.getFailedLoginAttempts().intValue();
             attempts++;

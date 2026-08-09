@@ -33,6 +33,9 @@ const Login = () => {
             
             if (data && data.token) {
                 localStorage.setItem('token', data.token);
+                if (data.refreshToken) {
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                }
                 if (data.userId) {
                     localStorage.setItem('userId', data.userId);
                 }

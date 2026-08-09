@@ -22,11 +22,28 @@ axios.interceptors.response.use(
     (response) => {
         return response;
     },
-    (error) => {
-        if (error.response && error.response.status === 401) {
-            // Token is expired or invalid
-            console.warn("Unauthorized access detected (401). Clearing token and redirecting to login.");
+    async (error) => {
+        const originalRequest = error.config;
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                const refreshToken = localStorage.getItem('refreshToken');
+                if (refreshToken) {
+                    const response = await axios.post('http://localhost:8085/api/auth/refresh-token', { refreshToken });
+                    const newAccessToken = response.data.token;
+                    localStorage.setItem('token', newAccessToken);
+                    
+                    // Retry original request with new token
+                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                    return axios(originalRequest);
+                }
+            } catch (err) {
+                console.warn("Refresh token failed. Clearing tokens and redirecting to login.");
+            }
+            
+            // Token is expired or invalid, and refresh failed or didn't exist
             localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
             localStorage.removeItem('user');
             
             // Redirect to login page if we are not already there

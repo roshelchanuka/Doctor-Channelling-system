@@ -22,7 +22,7 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secretKey;
     
-    private final long JWT_EXPIRATION_MS = 86400000; // 24 hours (in milliseconds)
+    private final long JWT_EXPIRATION_MS = 900000; // 15 minutes (in milliseconds)
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);

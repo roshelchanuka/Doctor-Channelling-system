@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.doctorchannelling.filter.JwtFilter;
+import com.example.doctorchannelling.filter.RateLimitFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -23,9 +24,11 @@ public class SecurityConfig {
     private java.util.List<String> allowedOrigins;
 
     private final JwtFilter jwtFilter;
+    private final RateLimitFilter rateLimitFilter;
 
-    public SecurityConfig(JwtFilter jwtFilter) {
+    public SecurityConfig(JwtFilter jwtFilter, RateLimitFilter rateLimitFilter) {
         this.jwtFilter = jwtFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -50,7 +53,8 @@ public class SecurityConfig {
                 );
 
         // Add our custom JwtFilter to the Spring Security Filter Chain
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(jwtFilter, com.example.doctorchannelling.filter.RateLimitFilter.class);
 
         return http.build();
     }

@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.doctorchannelling.model.User;
+import com.example.doctorchannelling.model.RefreshToken;
 import com.example.doctorchannelling.service.AuthService;
+import com.example.doctorchannelling.service.RefreshTokenService;
 import com.example.doctorchannelling.util.JwtUtil;
 import jakarta.validation.Valid;
 
@@ -16,10 +18,12 @@ import jakarta.validation.Valid;
 public class AuthController {
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
     
-    public AuthController(AuthService authService, JwtUtil jwtUtil) {
+    public AuthController(AuthService authService, JwtUtil jwtUtil, RefreshTokenService refreshTokenService) {
         this.authService = authService;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenService = refreshTokenService;
     }
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody User user) {
@@ -69,6 +73,19 @@ public class AuthController {
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+        String requestRefreshToken = request.get("refreshToken");
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtil.generateToken(user.getEmailId(), user.getRole());
+                    return ResponseEntity.ok(Map.of("token", token, "refreshToken", requestRefreshToken));
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
     }
 
 }
