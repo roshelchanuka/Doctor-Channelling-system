@@ -18,6 +18,6 @@ public interface DoctorSlotRepository extends JpaRepository<DoctorSlot, Integer>
     List<DoctorSlot> findByDoctorDoctorId(Integer doctorId);
 
     // Find slots that should be expired
-    @org.springframework.data.jpa.repository.Query("SELECT s FROM DoctorSlot s WHERE s.isExpired = false AND (s.availableDate < :currentDate OR (s.availableDate = :currentDate AND s.endTime < :currentTime))")
+    @org.springframework.data.jpa.repository.Query("SELECT s FROM DoctorSlot s WHERE s.isExpired = false AND (s.availableDate < :currentDate OR (s.availableDate = :currentDate AND s.endTime < cast(:currentTime as time)))")
     List<DoctorSlot> findSlotsToExpire(@org.springframework.data.repository.query.Param("currentDate") java.time.LocalDate currentDate, @org.springframework.data.repository.query.Param("currentTime") java.time.LocalTime currentTime);
 }

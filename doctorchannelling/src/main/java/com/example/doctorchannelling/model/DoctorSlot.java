@@ -55,7 +55,7 @@ public class DoctorSlot {
     private Integer currentBooked = 0;
 
     @Column(name = "IsExpired")
-    private boolean isExpired = false;
+    private Boolean isExpired = false;
 
     public Integer getSlotId() { return slotId; }
     public void setSlotId(Integer slotId) { this.slotId = slotId; }
@@ -78,6 +78,6 @@ public class DoctorSlot {
     public Integer getCurrentBooked() { return currentBooked; }
     public void setCurrentBooked(Integer currentBooked) { this.currentBooked = currentBooked; }
 
-    public boolean isExpired() { return isExpired; }
-    public void setExpired(boolean isExpired) { this.isExpired = isExpired; }
+    public Boolean isExpired() { return isExpired; }
+    public void setExpired(Boolean isExpired) { this.isExpired = isExpired; }
 }
