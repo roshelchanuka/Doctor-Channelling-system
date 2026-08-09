@@ -39,13 +39,7 @@ public class PatientController {
         }
         return ResponseEntity.notFound().build();
     }
-    //3. Getting profile details
-    @GetMapping("/{patientId}")
-    public ResponseEntity<Patient> getProfileDetails(@PathVariable Integer patientId) {
-        Optional<Patient> patient = patientService.getProfileDetails(patientId);
-        return patient.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+
     // 4. Getting the full patient dashboard
     @GetMapping("/{patientId}/dashboard")
     public ResponseEntity<?> getPatientDashboard(@PathVariable Integer patientId) {

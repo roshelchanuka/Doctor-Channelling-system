@@ -30,8 +30,4 @@ public class PaymentController {
     public ResponseEntity<List<Map<String, Object>>> getPendingBills() {
         return ResponseEntity.ok(paymentService.getPendingBills());
     }
-    @GetMapping("/appointment/{appointmentId}")
-    public ResponseEntity<List<Payment>> getPaymentsByAppointment(@PathVariable Integer appointmentId) {
-        return ResponseEntity.ok(paymentService.getPaymentsByAppointment(appointmentId));
-    }
 }
