@@ -22,7 +22,7 @@ public class DoctorSlotService {
     }
 
     public List<DoctorSlot> getSlotsByDoctor(Integer doctorId) {
-        return doctorSlotRepository.findByDoctorDoctorIdAndIsExpiredFalse(doctorId);
+        return doctorSlotRepository.findRealTimeActiveSlotsByDoctor(doctorId, java.time.LocalDate.now(), java.time.LocalTime.now());
     }
 
     public DoctorSlot addSlot(Integer doctorId, DoctorSlot slot) {
