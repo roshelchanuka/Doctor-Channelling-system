@@ -305,23 +305,7 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* Quick actions */}
-                <div className="quick-actions">
-                    <h3>Quick Actions</h3>
-                    <div className="quick-links">
-                        {navItems.filter(n => n.id !== 'home').map(item => (
-                            <a
-                                key={item.id}
-                                href="#"
-                                className="quick-link"
-                                onClick={(e) => { e.preventDefault(); setActiveTab(item.id); }}
-                            >
-                                <span className="quick-icon">{item.icon}</span>
-                                <span className="quick-label">{item.label}</span>
-                            </a>
-                        ))}
-                    </div>
-                </div>
+
             </div>
         );
     };
