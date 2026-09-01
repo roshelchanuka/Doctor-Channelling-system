@@ -31,11 +31,7 @@ const Login = () => {
             console.log('Login response data:', data);
             console.log('token:', data?.token, '| role:', data?.role, '| userId:', data?.userId);
             
-            if (data && data.token) {
-                localStorage.setItem('token', data.token);
-                if (data.refreshToken) {
-                    localStorage.setItem('refreshToken', data.refreshToken);
-                }
+            if (data && data.userId) {
                 if (data.userId) {
                     localStorage.setItem('userId', data.userId);
                 }
@@ -53,7 +49,7 @@ const Login = () => {
                     navigate('/dashboard');
                 }
             } else {
-                setSuccess(response.data);
+                setSuccess("Login failed. Please try again.");
             }
         } catch (err) {
             if (err.response && err.response.data) {

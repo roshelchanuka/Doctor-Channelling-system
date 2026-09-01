@@ -48,15 +48,13 @@ public class FileUploadController {
             if (userOptional.isEmpty()) {
                 return ResponseEntity.badRequest().body("User not found.");
             }
+            org.apache.tika.Tika tika = new org.apache.tika.Tika();
+            String mimeType = tika.detect(file.getInputStream());
+            if (!mimeType.equals("image/jpeg") && !mimeType.equals("image/png")) {
+                return ResponseEntity.badRequest().body("Invalid file type. Only JPG and PNG are allowed. Detected: " + mimeType);
+            }
             String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
-            String fileExtension = "";
-            int i = originalFileName.lastIndexOf('.');
-            if (i > 0) {
-                fileExtension = originalFileName.substring(i + 1).toLowerCase();
-            }
-            if (!fileExtension.matches("jpg|jpeg|png")) {
-                return ResponseEntity.badRequest().body("Invalid file type. Only JPG, JPEG, and PNG are allowed.");
-            }
+            String fileExtension = mimeType.equals("image/jpeg") ? "jpg" : "png";
             long sizeKB = file.getSize() / 1024;
             if (sizeKB > 5120) {
                 return ResponseEntity.badRequest().body("File size exceeds the 5MB limit.");

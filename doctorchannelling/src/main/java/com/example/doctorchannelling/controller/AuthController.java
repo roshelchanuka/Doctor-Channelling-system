@@ -49,7 +49,36 @@ public class AuthController {
         String password = request.get("password");
         String response = authService.loginUser(emailId, password);
         if (response.contains("token")) {
-            return ResponseEntity.ok(response);
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                Map<String, Object> map = mapper.readValue(response, Map.class);
+                String token = (String) map.get("token");
+                String refreshToken = (String) map.get("refreshToken");
+                
+                org.springframework.http.ResponseCookie jwtCookie = org.springframework.http.ResponseCookie.from("token", token)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(24 * 60 * 60)
+                    .build();
+                    
+                org.springframework.http.ResponseCookie refreshCookie = org.springframework.http.ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60)
+                    .build();
+                
+                map.remove("token");
+                map.remove("refreshToken");
+                
+                return ResponseEntity.ok()
+                    .header(org.springframework.http.HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                    .header(org.springframework.http.HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .body(mapper.writeValueAsString(map));
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError().body("Error parsing login response");
+            }
         }
         return ResponseEntity.badRequest().body(response);
     }
@@ -76,16 +105,45 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
-        String requestRefreshToken = request.get("refreshToken");
+    public ResponseEntity<?> refreshToken(@org.springframework.web.bind.annotation.CookieValue(name = "refreshToken", required = false) String requestRefreshToken) {
+        if (requestRefreshToken == null) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).body("Refresh token cookie is missing");
+        }
         return refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
                     String token = jwtUtil.generateToken(user.getEmailId(), user.getRole());
-                    return ResponseEntity.ok(Map.of("token", token, "refreshToken", requestRefreshToken));
+                    org.springframework.http.ResponseCookie jwtCookie = org.springframework.http.ResponseCookie.from("token", token)
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(24 * 60 * 60)
+                        .build();
+                    return ResponseEntity.ok()
+                        .header(org.springframework.http.HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                        .body("{\"message\":\"Token refreshed successfully\"}");
                 })
                 .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        org.springframework.http.ResponseCookie jwtCookie = org.springframework.http.ResponseCookie.from("token", "")
+            .httpOnly(true)
+            .secure(false)
+            .path("/")
+            .maxAge(0)
+            .build();
+        org.springframework.http.ResponseCookie refreshCookie = org.springframework.http.ResponseCookie.from("refreshToken", "")
+            .httpOnly(true)
+            .secure(false)
+            .path("/")
+            .maxAge(0)
+            .build();
+        return ResponseEntity.ok()
+            .header(org.springframework.http.HttpHeaders.SET_COOKIE, jwtCookie.toString())
+            .header(org.springframework.http.HttpHeaders.SET_COOKIE, refreshCookie.toString())
+            .body("{\"message\":\"Logged out successfully\"}");
+    }
 }
