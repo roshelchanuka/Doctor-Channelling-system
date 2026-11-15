@@ -2,6 +2,7 @@ package com.example.doctorchannelling.config;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -55,7 +56,7 @@ public class DataSeeder implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         seedAdmin("admin@docChannel.com",   "Admin@123",   "System Admin",  "0771234567");
-        seedDoctor("doctor@docChannel.com", "Doctor@123",  "Dr. John Silva", "Cardiology", new BigDecimal("2500.00"));
+        seedDoctor("doctor@docChannel.com", "123456",  "Dr. John Silva", "Cardiology", new BigDecimal("2500.00"));
         seedPatient("patient@docChannel.com","Patient@123", "Kamal Perera",  "0712345678");
         seedReceptionist("receptionist@docChannel.com", "Receptionist@123", "Nimali", "0711122334");
 
@@ -63,14 +64,22 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("  TEST ACCOUNTS (Doctor Channelling System)");
         System.out.println("====================================================");
         System.out.println("  ADMIN        : admin@docChannel.com   / Admin@123");
-        System.out.println("  DOCTOR       : doctor@docChannel.com  / Doctor@123");
+        System.out.println("  DOCTOR       : doctor@docChannel.com  / 123456");
         System.out.println("  PATIENT      : patient@docChannel.com / Patient@123");
         System.out.println("  RECEPTIONIST : receptionist@docChannel.com / Receptionist@123");
         System.out.println("====================================================\n");
     }
 
+    // ── Receptionist ───────────────────────────────────────────────────────────
     private void seedReceptionist(String email, String rawPassword, String name, String contact) {
-        if (userRepository.findByEmailId(email).isPresent()) {
+        Optional<User> existing = userRepository.findByEmailId(email);
+        if (existing.isPresent()) {
+            User user = existing.get();
+            user.setPasswordHash(passwordEncoder.encode(rawPassword));
+            user.setFailedLoginAttempts(0);
+            user.setAccountLockedUntil(null);
+            userRepository.save(user);
+            System.out.println("[DataSeeder] Updated password for: " + email);
             return;
         }
         User user = buildUser(email, rawPassword, "Receptionist");
@@ -86,8 +95,14 @@ public class DataSeeder implements CommandLineRunner {
 
     // ── Admin ──────────────────────────────────────────────────────────────────
     private void seedAdmin(String email, String rawPassword, String name, String contact) {
-        if (userRepository.findByEmailId(email).isPresent()) {
-            System.out.println("[DataSeeder] Skipped (already exists): " + email);
+        Optional<User> existing = userRepository.findByEmailId(email);
+        if (existing.isPresent()) {
+            User user = existing.get();
+            user.setPasswordHash(passwordEncoder.encode(rawPassword));
+            user.setFailedLoginAttempts(0);
+            user.setAccountLockedUntil(null);
+            userRepository.save(user);
+            System.out.println("[DataSeeder] Updated password for: " + email);
             return;
         }
 
@@ -106,8 +121,14 @@ public class DataSeeder implements CommandLineRunner {
     // ── Doctor ─────────────────────────────────────────────────────────────────
     private void seedDoctor(String email, String rawPassword, String name,
                             String specialization, BigDecimal fee) {
-        if (userRepository.findByEmailId(email).isPresent()) {
-            System.out.println("[DataSeeder] Skipped (already exists): " + email);
+        Optional<User> existing = userRepository.findByEmailId(email);
+        if (existing.isPresent()) {
+            User user = existing.get();
+            user.setPasswordHash(passwordEncoder.encode(rawPassword));
+            user.setFailedLoginAttempts(0);
+            user.setAccountLockedUntil(null);
+            userRepository.save(user);
+            System.out.println("[DataSeeder] Updated password for: " + email);
             return;
         }
 
@@ -126,8 +147,14 @@ public class DataSeeder implements CommandLineRunner {
 
     // ── Patient ────────────────────────────────────────────────────────────────
     private void seedPatient(String email, String rawPassword, String name, String mobile) {
-        if (userRepository.findByEmailId(email).isPresent()) {
-            System.out.println("[DataSeeder] Skipped (already exists): " + email);
+        Optional<User> existing = userRepository.findByEmailId(email);
+        if (existing.isPresent()) {
+            User user = existing.get();
+            user.setPasswordHash(passwordEncoder.encode(rawPassword));
+            user.setFailedLoginAttempts(0);
+            user.setAccountLockedUntil(null);
+            userRepository.save(user);
+            System.out.println("[DataSeeder] Updated password for: " + email);
             return;
         }
 
